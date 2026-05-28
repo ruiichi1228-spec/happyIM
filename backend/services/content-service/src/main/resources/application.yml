@@ -1,0 +1,51 @@
+server:
+  port: 8103
+
+spring:
+  application:
+    name: content-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  data:
+    mongodb:
+      uri: mongodb://localhost:27019/happyim
+  rabbitmq:
+    host: localhost
+    port: 5673
+    username: guest
+    password: guest
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+# TODO Phase 4: remove MySQL config, use Feign for user/group data
+  datasource:
+    url: jdbc:mysql://localhost:3308/happyim?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+minio:
+  endpoint: http://localhost:9002
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: happyim
+
+happyim:
+  mq:
+    exchange: happyim.exchange
+    routing-key: notify.moment
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

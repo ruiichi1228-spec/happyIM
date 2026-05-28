@@ -16,9 +16,9 @@
 
     <!-- 子模块在 Phase 2-4 逐步添加 -->
     <modules>
+        <module>content-service</module>
         <!-- <module>user-service</module> -->
         <!-- <module>chat-service</module> -->
-        <!-- <module>content-service</module> -->
         <!-- <module>chat-ws</module> -->
     </modules>
 
