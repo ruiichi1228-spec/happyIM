@@ -107,4 +107,29 @@ public class AdminController {
         adminService.deleteSensitiveWord(id);
         return ApiResponse.message("success");
     }
+
+    // ==================== 文件管理 ====================
+
+    @AdminRequired
+    @GetMapping("/files")
+    public ApiResponse<?> listFiles(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "all") String fileType,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return ApiResponse.success(adminService.listFiles(keyword, fileType, page, pageSize));
+    }
+
+    @AdminRequired
+    @GetMapping("/files/stats")
+    public ApiResponse<?> fileStats() {
+        return ApiResponse.success(adminService.fileStats());
+    }
+
+    @AdminRequired
+    @DeleteMapping("/files/{messageId}")
+    public ApiResponse<?> deleteFile(@PathVariable String messageId) {
+        adminService.deleteFile(messageId);
+        return ApiResponse.message("success");
+    }
 }

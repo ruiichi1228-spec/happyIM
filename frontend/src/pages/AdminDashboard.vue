@@ -137,6 +137,52 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+
+        <!-- 文件管理 -->
+        <el-tab-pane label="文件管理" name="files">
+          <div class="toolbar">
+            <el-input v-model="fileKeyword" placeholder="搜索文件名" clearable style="width:220px" @input="loadFiles" />
+            <el-select v-model="fileType" placeholder="文件类型" clearable style="width:120px; margin-left:8px" @change="loadFiles">
+              <el-option label="全部" value="all" />
+              <el-option label="图片" value="image" />
+              <el-option label="视频" value="video" />
+              <el-option label="文件" value="file" />
+              <el-option label="png" value="png" />
+              <el-option label="jpg" value="jpg" />
+              <el-option label="mp4" value="mp4" />
+              <el-option label="pdf" value="pdf" />
+            </el-select>
+            <span class="file-stats" v-if="fileStats.totalSizeFormatted">
+              总 {{ fileStats.totalFiles ?? 0 }} 个文件 · {{ fileStats.totalSizeFormatted }}
+            </span>
+          </div>
+          <el-table :data="files" v-loading="fileLoading" stripe>
+            <el-table-column label="文件名" min-width="220">
+              <template #default="{ row }">
+                <span style="color:#409eff; cursor:pointer" @click="openFileUrl(row)">{{ row.fileName }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="类型" width="80">
+              <template #default="{ row }"><el-tag size="small">{{ row.fileType || row.messageType }}</el-tag></template>
+            </el-table-column>
+            <el-table-column label="大小" width="100">
+              <template #default="{ row }">{{ formatFileSize(row.fileSize) }}</template>
+            </el-table-column>
+            <el-table-column prop="senderName" label="发送者" width="120" />
+            <el-table-column prop="conversationName" label="会话" width="140" />
+            <el-table-column label="时间" width="170">
+              <template #default="{ row }">{{ formatTime(row.createdAt) }}</template>
+            </el-table-column>
+            <el-table-column label="操作" width="80">
+              <template #default="{ row }">
+                <el-button size="small" type="danger" @click="deleteFile(row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="pagination-wrap">
+            <el-pagination background layout="prev, pager, next" :total="fileTotal" :page-size="filePageSize" v-model:current-page="filePage" @current-change="loadFiles" />
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </div>
 
@@ -316,6 +362,58 @@ const deleteWord = async (row) => {
   } catch (e) { /* */ }
 }
 
+// ==================== 文件管理 ====================
+const files = ref([]), fileLoading = ref(false), fileTotal = ref(0)
+const fileKeyword = ref(''), fileType = ref('all'), filePage = ref(1), filePageSize = ref(10)
+const fileStats = ref({})
+
+const loadFiles = async () => {
+  fileLoading.value = true
+  try {
+    const res = await adminAxios.get('/api/admin/files', {
+      params: { keyword: fileKeyword.value, fileType: fileType.value, page: filePage.value, pageSize: filePageSize.value }
+    })
+    if (res.data.code === 0) {
+      files.value = res.data.data.list; fileTotal.value = res.data.data.total
+    }
+  } catch (e) { /* */ } finally { fileLoading.value = false }
+}
+
+const loadFileStats = async () => {
+  try {
+    const res = await adminAxios.get('/api/admin/files/stats')
+    if (res.data.code === 0) fileStats.value = res.data.data
+  } catch (e) { /* */ }
+}
+
+const formatFileSize = (bytes) => {
+  if (!bytes) return '-'
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
+  if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB'
+  return (bytes / 1073741824).toFixed(2) + ' GB'
+}
+
+const formatTime = (ts) => {
+  if (!ts) return ''
+  const d = new Date(ts)
+  return d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+const openFileUrl = (row) => {
+  const url = row.fileUrl
+  if (url && url.startsWith('http')) window.open(url, '_blank')
+  else if (url) window.open('/api/files/download/' + url.substring(url.indexOf('/') + 1), '_blank')
+}
+
+const deleteFile = async (row) => {
+  try {
+    await ElMessageBox.confirm(`确定要删除文件 "${row.fileName}" 吗？`, '确认删除', { type: 'warning' })
+    const res = await adminAxios.delete(`/api/admin/files/${row.messageId}`)
+    if (res.data.code === 0) { loadFiles(); loadFileStats(); ElMessage.success('已删除') }
+  } catch (e) { /* */ }
+}
+
 // ==================== 初始化 ====================
 onMounted(() => {
   const info = localStorage.getItem('admin_info')
@@ -325,6 +423,8 @@ onMounted(() => {
   loadUsers()
   loadGroups()
   loadWords()
+  loadFiles()
+  loadFileStats()
 })
 </script>
 
@@ -359,6 +459,7 @@ onMounted(() => {
 
 /* ===== 通用 ===== */
 .toolbar { margin-bottom:12px; display:flex; align-items:center; }
+.file-stats { margin-left:16px; font-size:13px; color:#909399; }
 .pagination-wrap { margin-top:16px; display:flex; justify-content:center; }
 .detail-card { display:flex; flex-direction:column; align-items:center; }
 </style>

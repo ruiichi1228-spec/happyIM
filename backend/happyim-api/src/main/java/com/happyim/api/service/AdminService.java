@@ -8,7 +8,9 @@ import com.happyim.common.util.BizException;
 import com.happyim.common.util.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -206,6 +208,86 @@ public class AdminService {
         sensitiveWordMapper.deleteById(id);
         sensitiveWordFilter.reload();
         log.info("管理员删除敏感词: id={}", id);
+    }
+
+    // ==================== 文件管理 ====================
+
+    public Map<String, Object> listFiles(String keyword, String fileType, int page, int pageSize) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        if (keyword != null && !keyword.isBlank()) {
+            criteriaList.add(Criteria.where("fileName").regex(keyword, "i"));
+        }
+        if (fileType != null && !fileType.isBlank() && !"all".equals(fileType)) {
+            criteriaList.add(Criteria.where("fileType").is(fileType));
+        }
+        Criteria criteria = criteriaList.isEmpty()
+                ? new Criteria() : new Criteria().andOperator(criteriaList.toArray(new Criteria[0]));
+
+        // aggregation: group by messageId to dedup, then sort + paginate
+        long total = mongoTemplate.count(new Query(criteria), "file_feed");
+
+        var agg = Aggregation.newAggregation(
+                Aggregation.match(criteria),
+                Aggregation.group("messageId")
+                        .first("fileName").as("fileName")
+                        .first("fileSize").as("fileSize")
+                        .first("fileType").as("fileType")
+                        .first("fileUrl").as("fileUrl")
+                        .first("senderName").as("senderName")
+                        .first("conversationName").as("conversationName")
+                        .first("createdAt").as("createdAt")
+                        .first("messageType").as("messageType"),
+                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                Aggregation.skip((long) (page - 1) * pageSize),
+                Aggregation.limit(pageSize)
+        );
+
+        List<Map> list = mongoTemplate.aggregate(agg, "file_feed", Map.class).getMappedResults();
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("list", list);
+        result.put("total", total);
+        result.put("page", page);
+        result.put("pageSize", pageSize);
+        return result;
+    }
+
+    public Map<String, Object> fileStats() {
+        Map<String, Object> stats = new LinkedHashMap<>();
+        long total = mongoTemplate.count(new Query(), "file_feed");
+        stats.put("totalFiles", total);
+
+        // 按类型统计
+        var agg = Aggregation.newAggregation(
+                Aggregation.group("fileType").count().as("count"),
+                Aggregation.sort(Sort.Direction.DESC, "count")
+        );
+        List<Map> typeStats = mongoTemplate.aggregate(agg, "file_feed", Map.class).getMappedResults();
+        stats.put("byType", typeStats);
+
+        // 总大小
+        var sizeAgg = Aggregation.newAggregation(
+                Aggregation.group().sum("fileSize").as("totalSize")
+        );
+        List<Map> sizeResult = mongoTemplate.aggregate(sizeAgg, "file_feed", Map.class).getMappedResults();
+        long totalSize = sizeResult.isEmpty() ? 0 : ((Number) sizeResult.get(0).get("totalSize")).longValue();
+        stats.put("totalSize", totalSize);
+        stats.put("totalSizeFormatted", formatFileSize(totalSize));
+
+        return stats;
+    }
+
+    @Transactional
+    public void deleteFile(String messageId) {
+        mongoTemplate.remove(new Query(Criteria.where("messageId").is(messageId)), "file_feed");
+        log.info("管理员删除文件记录: messageId={}", messageId);
+    }
+
+    private String formatFileSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1048576) return String.format("%.1f KB", bytes / 1024.0);
+        if (bytes < 1073741824) return String.format("%.1f MB", bytes / 1048576.0);
+        return String.format("%.2f GB", bytes / 1073741824.0);
     }
 
     // ==================== 初始化 ====================
