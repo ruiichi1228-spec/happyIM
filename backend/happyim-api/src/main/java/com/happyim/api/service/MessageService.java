@@ -78,7 +78,7 @@ public class MessageService {
                                             String content, String messageType, Map<String, Object> extra) {
         validateParticipant(fromUserId, conversationId, convType);
 
-        String filtered = filterChain.execute(content);
+        String filtered = "text".equals(messageType) ? filterChain.execute(content) : content;
         String messageId = idGenerator.generate(conversationId, convType);
         long now = System.currentTimeMillis();
 

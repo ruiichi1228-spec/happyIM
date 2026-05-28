@@ -4,13 +4,21 @@ import com.happyim.common.mapper.SensitiveWordMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
- * AC 自动机敏感词过滤器。
- * 匹配到的敏感词替换为 ***
+ * 敏感词 + URL 过滤器。
+ * 先过滤 URL 链接，再用 AC 自动机匹配敏感词，匹配到的内容替换为 ***
  */
 @Component
 public class SensitiveWordFilter implements MessageFilter {
+
+    // 匹配 URL 的正则：http/https、www 域名、以及裸域名
+    private static final Pattern URL_PATTERN = Pattern.compile(
+            "https?://[^\\s]+" +
+            "|www\\.[^\\s]+\\.[a-zA-Z]{2,}(?:/[^\\s]*)?" +
+            "|[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,}(?:/[^\\s]*)?",
+            Pattern.CASE_INSENSITIVE);
 
     private volatile AhoCorasick ac;
     private final SensitiveWordMapper sensitiveWordMapper;
@@ -26,6 +34,10 @@ public class SensitiveWordFilter implements MessageFilter {
     }
 
     private void loadWords() {
+        if (sensitiveWordMapper == null) {
+            ac.build(List.of("广告", "违禁词"));
+            return;
+        }
         List<String> words = sensitiveWordMapper.findAllWords();
         if (words == null || words.isEmpty()) {
             words = List.of("广告", "违禁词");
@@ -43,11 +55,14 @@ public class SensitiveWordFilter implements MessageFilter {
 
     @Override
     public String doFilter(String content) throws FilterRejectException {
+        // 第一层：过滤所有 URL 链接
+        content = URL_PATTERN.matcher(content).replaceAll("***");
+
+        // 第二层：AC 自动机匹配敏感词
         List<AhoCorasick.Match> hits = ac.search(content);
         if (hits.isEmpty()) return content;
 
         StringBuilder sb = new StringBuilder(content);
-        // 从后往前替换，避免索引偏移
         for (int i = hits.size() - 1; i >= 0; i--) {
             AhoCorasick.Match hit = hits.get(i);
             sb.replace(hit.start, hit.end, "***");
