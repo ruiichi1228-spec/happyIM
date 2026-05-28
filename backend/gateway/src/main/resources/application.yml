@@ -8,6 +8,7 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
+        ip: 127.0.0.1
       config:
         import-check:
           enabled: false
@@ -61,3 +62,8 @@ management:
     web:
       exposure:
         include: health,info,prometheus
+
+jwt:
+  secret: ${JWT_SECRET:change-me-to-a-random-secret-at-least-256-bits}
+  access-token-expire: 900
+  refresh-token-expire: 604800
