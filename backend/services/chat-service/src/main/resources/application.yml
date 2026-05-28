@@ -2,6 +2,8 @@ server:
   port: 8102
 
 spring:
+  profiles:
+    active: dev
   application:
     name: chat-service
   cloud:
