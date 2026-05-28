@@ -1,9 +1,5 @@
 package com.happyim.content.service;
 
-import com.happyim.common.mapper.FriendMapper;
-import com.happyim.common.mapper.UserMapper;
-import com.happyim.common.model.entity.Friend;
-import com.happyim.common.model.entity.User;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +20,7 @@ public class MomentService {
 
     private static final Logger log = LoggerFactory.getLogger(MomentService.class);
     private final MongoTemplate mongoTemplate;
-    private final FriendMapper friendMapper;
-    private final UserMapper userMapper;
+    private final UserServiceClient client;
     private final RabbitTemplate rabbitTemplate;
 
     @Value("${happyim.mq.exchange}")
@@ -34,22 +29,34 @@ public class MomentService {
     @Value("${happyim.mq.routing-key}")
     private String routingKey;
 
-    public MomentService(MongoTemplate mongoTemplate, FriendMapper friendMapper,
-                         UserMapper userMapper, RabbitTemplate rabbitTemplate) {
+    public MomentService(MongoTemplate mongoTemplate, UserServiceClient client,
+                         RabbitTemplate rabbitTemplate) {
         this.mongoTemplate = mongoTemplate;
-        this.friendMapper = friendMapper;
-        this.userMapper = userMapper;
+        this.client = client;
         this.rabbitTemplate = rabbitTemplate;
+    }
+
+    private String nick(Map<String, Object> u) { return (String) u.getOrDefault("nickname", ""); }
+    private String avatar(Map<String, Object> u) {
+        String raw = (String) u.get("avatarUrl");
+        Long uid = toLong(u.get("id"));
+        if (raw != null && !raw.isBlank() && !raw.startsWith("http")) return "/api/files/avatar/" + uid;
+        return raw;
+    }
+    private Long toLong(Object v) {
+        if (v instanceof Number) return ((Number)v).longValue();
+        if (v instanceof String) return Long.parseLong((String)v);
+        return null;
     }
 
     // ==================== 发布 ====================
 
     public String publish(Long userId, String content, String mediaUrls) {
-        User u = userMapper.findById(userId);
+        Map<String, Object> u = client.getUser(userId);
         Map<String, Object> doc = new LinkedHashMap<>();
         doc.put("userId", userId);
-        doc.put("nickname", u != null ? u.getNickname() : "");
-        doc.put("avatar", u != null ? resolveAvatar(u) : "");
+        doc.put("nickname", nick(u));
+        doc.put("avatar", avatar(u));
         doc.put("content", content);
         doc.put("mediaUrls", mediaUrls);
         doc.put("visibility", 0);
@@ -75,8 +82,8 @@ public class MomentService {
         if (filterUserId != null) {
             q.addCriteria(Criteria.where("userId").is(filterUserId));
         } else {
-            List<Friend> friends = friendMapper.findByUserId(userId);
-            List<Long> friendIds = new ArrayList<>(friends.stream().map(Friend::getFriendId).toList());
+            List<Map<String, Object>> friends = client.getFriends(userId);
+            List<Long> friendIds = new ArrayList<>(friends.stream().map(f -> toLong(f.get("friendId"))).filter(Objects::nonNull).toList());
             friendIds.add(userId);
             q.addCriteria(Criteria.where("userId").in(friendIds));
         }
@@ -98,10 +105,10 @@ public class MomentService {
     // ==================== 点赞 ====================
 
     public void like(String momentId, Long userId) {
-        User u = userMapper.findById(userId);
+        Map<String, Object> u = client.getUser(userId);
         Map<String, Object> likeEntry = new LinkedHashMap<>();
         likeEntry.put("userId", userId);
-        likeEntry.put("nickname", u != null ? u.getNickname() : "");
+        likeEntry.put("nickname", nick(u));
         likeEntry.put("createdAt", System.currentTimeMillis());
 
         // 先移除旧的，再添加（防止重复）
@@ -131,15 +138,15 @@ public class MomentService {
     // ==================== 评论 ====================
 
     public void comment(String momentId, Long userId, String content, Long replyTo) {
-        User u = userMapper.findById(userId);
-        User ru = replyTo != null ? userMapper.findById(replyTo) : null;
+        Map<String, Object> u = client.getUser(userId);
+        Map<String, Object> ru = replyTo != null ? client.getUser(replyTo) : null;
         Map<String, Object> commentEntry = new LinkedHashMap<>();
         commentEntry.put("userId", userId);
-        commentEntry.put("nickname", u != null ? u.getNickname() : "");
+        commentEntry.put("nickname", nick(u));
         commentEntry.put("content", content);
         if (replyTo != null) {
             commentEntry.put("replyToUserId", replyTo);
-            commentEntry.put("replyToNickname", ru != null ? ru.getNickname() : "");
+            commentEntry.put("replyToNickname", nick(ru));
         }
         commentEntry.put("createdAt", System.currentTimeMillis());
 
@@ -251,12 +258,12 @@ public class MomentService {
     }
 
     private void sendNotification(Long userId, Long fromUserId, String momentId, String type, String content) {
-        User from = userMapper.findById(fromUserId);
+        Map<String, Object> from = client.getUser(fromUserId);
         Map<String, Object> n = new LinkedHashMap<>();
         n.put("userId", userId);
         n.put("fromUserId", fromUserId);
-        n.put("fromNickname", from != null ? from.getNickname() : "");
-        n.put("fromAvatar", from != null ? resolveAvatar(from) : "");
+        n.put("fromNickname", nick(from));
+        n.put("fromAvatar", avatar(from));
         n.put("momentId", momentId);
         n.put("type", type);
         n.put("content", content);
@@ -286,10 +293,4 @@ public class MomentService {
         }
     }
 
-    private String resolveAvatar(User u) {
-        if (u == null) return null;
-        String raw = u.getAvatarUrl();
-        if (raw != null && !raw.isBlank() && !raw.startsWith("http")) return "/api/files/avatar/" + u.getId();
-        return raw;
-    }
 }

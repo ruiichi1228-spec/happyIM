@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class AdminService {
     private final GroupMemberMapper groupMemberMapper;
     private final SensitiveWordMapper sensitiveWordMapper;
     private final JwtUtil jwtUtil;
+    private final RabbitTemplate rabbitTemplate;
     private final RedisTemplate<String, String> redisTemplate;
     private final MongoTemplate mongoTemplate;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -39,7 +41,8 @@ public class AdminService {
     public AdminService(AdminUserMapper adminUserMapper, UserMapper userMapper,
                         GroupChatMapper groupChatMapper, GroupMemberMapper groupMemberMapper,
                         SensitiveWordMapper sensitiveWordMapper,
-                        JwtUtil jwtUtil, RedisTemplate<String, String> redisTemplate,
+                        JwtUtil jwtUtil, RabbitTemplate rabbitTemplate,
+                        RedisTemplate<String, String> redisTemplate,
                         MongoTemplate mongoTemplate) {
         this.adminUserMapper = adminUserMapper;
         this.userMapper = userMapper;
@@ -47,8 +50,18 @@ public class AdminService {
         this.groupMemberMapper = groupMemberMapper;
         this.sensitiveWordMapper = sensitiveWordMapper;
         this.jwtUtil = jwtUtil;
+        this.rabbitTemplate = rabbitTemplate;
         this.redisTemplate = redisTemplate;
         this.mongoTemplate = mongoTemplate;
+    }
+
+    private void publishSensitiveReload() {
+        try {
+            rabbitTemplate.convertAndSend("happyim.exchange", "sensitive.reload",
+                    Map.of("type", "sensitive_reload"));
+        } catch (Exception e) {
+            log.warn("发布敏感词重载事件失败: {}", e.getMessage());
+        }
     }
 
     // ==================== 登录 ====================
@@ -196,14 +209,14 @@ public class AdminService {
             throw new BizException(ErrorCode.DUPLICATE_OPERATION, "该敏感词已存在");
         }
         sensitiveWordMapper.insert(word);
-        // TODO: notify chat-service to reload via MQ event
+        publishSensitiveReload();
         log.info("管理员添加敏感词: {}", word);
     }
 
     @Transactional
     public void deleteSensitiveWord(Long id) {
         sensitiveWordMapper.deleteById(id);
-        // TODO: notify chat-service to reload via MQ event
+        publishSensitiveReload();
         log.info("管理员删除敏感词: id={}", id);
     }
 
