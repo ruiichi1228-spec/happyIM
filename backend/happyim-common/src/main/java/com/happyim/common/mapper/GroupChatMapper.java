@@ -15,4 +15,9 @@ public interface GroupChatMapper {
     int updateInfo(Map<String, Object> params);
     int updateMemberCount(@Param("id") Long id, @Param("delta") int delta);
     int dissolve(@Param("id") Long id);
+
+    // admin
+    List<GroupChat> findGroupsPage(@Param("keyword") String keyword, @Param("offset") int offset, @Param("limit") int limit);
+    int countGroups(@Param("keyword") String keyword);
+    int countTotalGroups();
 }

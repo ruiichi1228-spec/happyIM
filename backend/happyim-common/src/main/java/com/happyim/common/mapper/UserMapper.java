@@ -26,4 +26,11 @@ public interface UserMapper {
     List<User> findByIds(@Param("ids") List<Long> ids);
 
     int updateProfile(User user);
+
+    // admin
+    List<User> findUsersPage(@Param("keyword") String keyword, @Param("offset") int offset, @Param("limit") int limit);
+    int countUsers(@Param("keyword") String keyword);
+    int updateStatus(@Param("id") Long id, @Param("status") Integer status);
+    int countTodayNewUsers();
+    int countTotalUsers();
 }

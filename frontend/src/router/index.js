@@ -4,6 +4,18 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', redirect: '/login' },
+    // 管理后台（独立路由）
+    { path: '/admin', redirect: '/admin/login' },
+    {
+      path: '/admin/login',
+      name: 'AdminLogin',
+      component: () => import('@/pages/AdminLogin.vue')
+    },
+    {
+      path: '/admin/dashboard',
+      name: 'AdminDashboard',
+      component: () => import('@/pages/AdminDashboard.vue')
+    },
     {
       path: '/login',
       name: 'Login',

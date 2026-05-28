@@ -1,5 +1,6 @@
 package com.happyim.common.service;
 
+import com.happyim.common.mapper.SensitiveWordMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -11,13 +12,25 @@ import java.util.*;
 @Component
 public class SensitiveWordFilter implements MessageFilter {
 
-    private final AhoCorasick ac;
+    private volatile AhoCorasick ac;
+    private final SensitiveWordMapper sensitiveWordMapper;
 
-    public SensitiveWordFilter() {
+    public SensitiveWordFilter(SensitiveWordMapper sensitiveWordMapper) {
+        this.sensitiveWordMapper = sensitiveWordMapper;
         this.ac = new AhoCorasick();
-        // 预加载敏感词库（后续可从文件/DB加载）
-        List<String> words = List.of("广告", "违禁词");
+        loadWords();
+    }
+
+    private void loadWords() {
+        List<String> words = sensitiveWordMapper.findAllWords();
+        if (words == null || words.isEmpty()) {
+            words = List.of("广告", "违禁词");
+        }
         ac.build(words);
+    }
+
+    public synchronized void reload() {
+        loadWords();
     }
 
     @Override

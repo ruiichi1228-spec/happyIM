@@ -64,6 +64,27 @@ public class JwtUtil {
         return Long.valueOf(parseToken(token).getSubject());
     }
 
+    public String generateAdminToken(Long adminId) {
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(String.valueOf(adminId))
+                .claim("adminId", adminId)
+                .id(UUID.randomUUID().toString())
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + accessTokenExpire * 1000))
+                .signWith(key)
+                .compact();
+    }
+
+    public Long getAdminId(String token) {
+        Claims claims = parseToken(token);
+        Object adminId = claims.get("adminId");
+        if (adminId instanceof Integer) {
+            return ((Integer) adminId).longValue();
+        }
+        return (Long) adminId;
+    }
+
     public long getRemainingSeconds(String token) {
         Claims claims = parseToken(token);
         long remaining = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;

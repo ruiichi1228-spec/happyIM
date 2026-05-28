@@ -145,3 +145,24 @@ CREATE TABLE IF NOT EXISTS `moment_notification` (
     INDEX `idx_user` (`user_id`),
     INDEX `idx_created` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='朋友圈通知';
+
+-- 管理员账号表
+CREATE TABLE IF NOT EXISTS `admin_user` (
+    `id`           BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `username`     VARCHAR(64) NOT NULL COMMENT '管理员用户名',
+    `password`     VARCHAR(255) NOT NULL COMMENT 'BCrypt加密密码',
+    `nickname`     VARCHAR(64) DEFAULT NULL COMMENT '显示昵称',
+    `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_admin_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员账号表';
+
+-- 敏感词库
+CREATE TABLE IF NOT EXISTS `sensitive_word` (
+    `id`           BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `word`         VARCHAR(128) NOT NULL COMMENT '敏感词',
+    `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_word` (`word`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='敏感词库';
+
+-- 默认管理员账号: admin / admin123 (BCrypt)
+-- INSERT IGNORE INTO admin_user (username, password, nickname) VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5Eh', '系统管理员');

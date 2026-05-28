@@ -53,4 +53,28 @@
         UPDATE group_chat SET status = 1 WHERE id = #{id}
     </update>
 
+    <select id="findGroupsPage" resultMap="groupMap">
+        SELECT * FROM group_chat
+        <where>
+            <if test="keyword != null and keyword != ''">
+                name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countGroups" resultType="int">
+        SELECT COUNT(*) FROM group_chat
+        <where>
+            <if test="keyword != null and keyword != ''">
+                name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="countTotalGroups" resultType="int">
+        SELECT COUNT(*) FROM group_chat WHERE status = 0
+    </select>
+
 </mapper>
