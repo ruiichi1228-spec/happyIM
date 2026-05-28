@@ -50,3 +50,10 @@ logging:
   level:
     root: INFO
     com.happyim: DEBUG
+
+spring:
+  cloud:
+    nacos:
+      config:
+        import-check:
+          enabled: false

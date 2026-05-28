@@ -47,3 +47,14 @@ management:
     web:
       exposure:
         include: health,info,prometheus
+
+jwt:
+  secret: ${JWT_SECRET:change-me-to-a-random-secret-at-least-256-bits}
+  access-token-expire: 900
+  refresh-token-expire: 604800
+
+minio:
+  endpoint: http://localhost:9002
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: happyim
