@@ -79,12 +79,49 @@ services:
       timeout: 5s
       retries: 5
 
+  nacos:
+    image: nacos/nacos-server:v2.3.0
+    container_name: happyim-nacos
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      MODE: standalone
+      PREFER_HOST_MODE: hostname
+    volumes:
+      - nacos_data:/home/nacos/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/v1/console/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v3.0.0
+    container_name: happyim-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: happyim-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+
 volumes:
   mysql_data:
   mongodb_data:
   redis_data:
   rabbitmq_data:
   minio_data:
+  nacos_data:
 
 networks:
   default:

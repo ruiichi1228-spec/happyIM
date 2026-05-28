@@ -1,0 +1,60 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: happyim-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # user-service
+        - id: user-auth
+          uri: lb://user-service
+          predicates: Path=/api/auth/**
+        - id: user-users
+          uri: lb://user-service
+          predicates: Path=/api/users/**
+        - id: user-friends
+          uri: lb://user-service
+          predicates: Path=/api/friends/**
+        - id: user-groups
+          uri: lb://user-service
+          predicates: Path=/api/groups/**
+        - id: user-admin
+          uri: lb://user-service
+          predicates: Path=/api/admin/**
+        # chat-service
+        - id: chat-conversations
+          uri: lb://chat-service
+          predicates: Path=/api/conversations/**
+        # content-service
+        - id: content-moments
+          uri: lb://content-service
+          predicates: Path=/api/moments/**
+        - id: content-square
+          uri: lb://content-service
+          predicates: Path=/api/square/**
+        - id: content-files
+          uri: lb://content-service
+          predicates: Path=/api/files/**
+        - id: content-file-feed
+          uri: lb://content-service
+          predicates: Path=/api/file-feed/**
+
+  # Sentinel 控制台（可选）
+  # sentinel:
+  #   transport:
+  #     dashboard: localhost:8088
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
