@@ -15,9 +15,16 @@
     <description>WebSocket real-time message push</description>
 
     <dependencies>
+        <!-- JwtUtil only, exclude DataSource auto-config -->
         <dependency>
             <groupId>com.happyim</groupId>
             <artifactId>happyim-common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.baomidou</groupId>
+                    <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -27,6 +34,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
+        <!-- jjwt comes transitively from happyim-common -->
     </dependencies>
 
     <build>

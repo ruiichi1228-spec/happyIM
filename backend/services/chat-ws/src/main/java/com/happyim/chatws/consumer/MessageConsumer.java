@@ -1,13 +1,12 @@
 package com.happyim.chatws.consumer;
 
-import com.happyim.common.mapper.UserMapper;
-import com.happyim.common.model.entity.User;
 import com.happyim.chatws.handler.ChatWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,13 +18,13 @@ public class MessageConsumer {
     private static final Logger log = LoggerFactory.getLogger(MessageConsumer.class);
 
     private final ChatWebSocketHandler wsHandler;
-    private final UserMapper userMapper;
+    private final RestTemplate restTemplate;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public MessageConsumer(ChatWebSocketHandler wsHandler, UserMapper userMapper,
+    public MessageConsumer(ChatWebSocketHandler wsHandler, RestTemplate restTemplate,
                            RedisTemplate<String, String> redisTemplate) {
         this.wsHandler = wsHandler;
-        this.userMapper = userMapper;
+        this.restTemplate = restTemplate;
         this.redisTemplate = redisTemplate;
     }
 
@@ -42,7 +41,6 @@ public class MessageConsumer {
             String conversationId = (String) msg.get("conversationId");
             int convType = msg.get("conversationType") instanceof Integer ? (int) msg.get("conversationType") : 0;
             long fromUserId = msg.get("fromUserId") instanceof Integer ? (long) (int) msg.get("fromUserId") : (long) msg.get("fromUserId");
-            String content = (String) msg.get("content");
 
             if (convType == 0) {
                 handlePrivate(messageId, conversationId, fromUserId, msg);
@@ -108,14 +106,12 @@ public class MessageConsumer {
         String content = (String) msg.get("content");
         String viewing = wsHandler.getCurrentConversation(userId);
         if (convId.equals(viewing)) {
-            // 正在查看 → 推送完整消息，归零未读，推进游标
             Map<String, Object> payload = new LinkedHashMap<>(msg);
             wsHandler.pushMessage(userId, payload);
             String hashKey = "chat:session:" + userId + ":" + convId;
             redisTemplate.opsForHash().put(hashKey, "unread_count", "0");
             redisTemplate.opsForHash().put(hashKey, "read_cursor", messageId);
         } else {
-            // 未查看 → 推送通知（未读数 API 端已 +1，此处不再加）
             Map<String, Object> data = new LinkedHashMap<>();
             data.put("conversationId", convId);
             data.put("preview", content != null && content.length() > 30 ? content.substring(0, 30) : content);
@@ -125,8 +121,21 @@ public class MessageConsumer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private String getSenderName(Long userId) {
-        User user = userMapper.findById(userId);
-        return user != null ? (user.getNickname() != null ? user.getNickname() : user.getUsername()) : "";
+        try {
+            Map<String, Object> profile = restTemplate.getForObject(
+                    "http://localhost:8101/api/users/" + userId + "/profile", Map.class);
+            if (profile != null && profile.get("code") instanceof Integer code && code == 0) {
+                Map<String, Object> data = (Map<String, Object>) profile.get("data");
+                if (data != null) {
+                    String nickname = (String) data.get("nickname");
+                    return nickname != null ? nickname : (String) data.getOrDefault("username", "");
+                }
+            }
+        } catch (Exception e) {
+            log.warn("获取用户 {} 信息失败: {}", userId, e.getMessage());
+        }
+        return "";
     }
 }

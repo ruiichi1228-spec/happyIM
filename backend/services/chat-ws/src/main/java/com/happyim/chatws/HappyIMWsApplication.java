@@ -1,15 +1,23 @@
 package com.happyim.chatws;
 
-import org.mybatis.spring.annotation.MapperScan;
+import com.happyim.common.security.JwtUtil;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+    DataSourceAutoConfiguration.class,
+    DataSourceTransactionManagerAutoConfiguration.class
+})
 @EnableRabbit
-@ComponentScan(basePackages = {"com.happyim.ws", "com.happyim.common"})
-@MapperScan("com.happyim.common.mapper")
+@EnableWebSocket
+@ComponentScan(basePackages = "com.happyim.chatws")
+@Import(JwtUtil.class)
 public class HappyIMWsApplication {
     public static void main(String[] args) {
         SpringApplication.run(HappyIMWsApplication.class, args);
