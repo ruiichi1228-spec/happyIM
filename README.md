@@ -1,9 +1,11 @@
 # HappyIM — 不只是 Demo，这是一套能打的即时通讯系统
 
 <p align="center">
-  <img src="./截图/聊天页面，白色.png" width="45%" alt="亮色模式" />
-  &nbsp;&nbsp;
-  <img src="./截图/聊天页面，黑色.png" width="45%" alt="暗色模式" />
+  <img src="./截图/聊天页面，白色.png" width="100%" alt="亮色模式" />
+</p>
+
+<p align="center">
+  <img src="./截图/聊天页面，黑色.png" width="100%" alt="暗色模式" />
 </p>
 
 <p align="center">
@@ -36,9 +38,11 @@
 ### 登录与注册
 
 <p align="center">
-  <img src="./截图/登录.png" width="40%" alt="登录" />
-  &nbsp;&nbsp;
-  <img src="./截图/创建.png" width="40%" alt="注册" />
+  <img src="./截图/登录.png" width="100%" alt="登录" />
+</p>
+
+<p align="center">
+  <img src="./截图/创建.png" width="100%" alt="注册" />
 </p>
 
 毛玻璃雨滴特效、邮箱验证码注册、注册时自选默认头像——**登录页就开始堆细节**，不糊弄。
@@ -46,7 +50,7 @@
 ### 聊天 — 整个系统的核心
 
 <p align="center">
-  <img src="./截图/聊天页面，白色.png" width="90%" alt="聊天主界面" />
+  <img src="./截图/聊天页面，白色.png" width="100%" alt="聊天主界面" />
 </p>
 
 - **WebSocket 长连接**，消息实时送达，不是轮询
@@ -55,11 +59,15 @@
 - 消息状态追踪：发送中 → 已送达 → 已读
 
 <p align="center">
-  <img src="./截图/会话图片查看.png" width="30%" alt="图片预览" />
-  &nbsp;&nbsp;
-  <img src="./截图/会话视频播放.png" width="30%" alt="视频播放" />
-  &nbsp;&nbsp;
-  <img src="./截图/文件发送.png" width="30%" alt="文件发送" />
+  <img src="./截图/会话图片查看.png" width="100%" alt="图片预览" />
+</p>
+
+<p align="center">
+  <img src="./截图/会话视频播放.png" width="100%" alt="视频播放" />
+</p>
+
+<p align="center">
+  <img src="./截图/文件发送.png" width="100%" alt="文件发送" />
 </p>
 
 图片点击放大预览、视频内联播放、文件上传下载——**不是只发文字的聊天室，是真的能传文件的 IM。**
@@ -67,7 +75,7 @@
 ### 群聊
 
 <p align="center">
-  <img src="./截图/聊天-群聊抽屉.png" width="60%" alt="群聊" />
+  <img src="./截图/聊天-群聊抽屉.png" width="100%" alt="群聊" />
 </p>
 
 创建群聊、群成员管理、群公告、群内禁言——微信群的基础功能一个不少。
@@ -75,11 +83,15 @@
 ### 联系人管理
 
 <p align="center">
-  <img src="./截图/联系人-私人管理.png" width="30%" alt="联系人" />
-  &nbsp;&nbsp;
-  <img src="./截图/联系人-好友申请管理.png" width="30%" alt="好友申请" />
-  &nbsp;&nbsp;
-  <img src="./截图/联系人-群聊管理.png" width="30%" alt="群聊管理" />
+  <img src="./截图/联系人-私人管理.png" width="100%" alt="联系人" />
+</p>
+
+<p align="center">
+  <img src="./截图/联系人-好友申请管理.png" width="100%" alt="好友申请" />
+</p>
+
+<p align="center">
+  <img src="./截图/联系人-群聊管理.png" width="100%" alt="群聊管理" />
 </p>
 
 好友搜索 / 添加 / 备注 / 星标 / 黑名单，好友申请审批流，群聊创建与管理——**完整的好友关系链**，不是简单的「所有人互发消息」。
@@ -87,7 +99,7 @@
 ### 个人名片
 
 <p align="center">
-  <img src="./截图/会话个人名片.png" width="40%" alt="个人名片" />
+  <img src="./截图/会话个人名片.png" width="100%" alt="个人名片" />
 </p>
 
 点击头像弹出名片卡，查看对方详细资料——交互细节做到位。
@@ -95,9 +107,11 @@
 ### 朋友圈
 
 <p align="center">
-  <img src="./截图/朋友圈发布.png" width="45%" alt="发布朋友圈" />
-  &nbsp;&nbsp;
-  <img src="./截图/朋友圈信箱.png" width="45%" alt="朋友圈通知" />
+  <img src="./截图/朋友圈发布.png" width="100%" alt="发布朋友圈" />
+</p>
+
+<p align="center">
+  <img src="./截图/朋友圈信箱.png" width="100%" alt="朋友圈通知" />
 </p>
 
 图文动态发布、视频动态、点赞、评论、回复评论、消息通知——**微信朋友圈的核心体验完整复刻。**
@@ -105,7 +119,7 @@
 ### 广场 — 公开社区
 
 <p align="center">
-  <img src="./截图/广场.png" width="70%" alt="广场" />
+  <img src="./截图/广场.png" width="100%" alt="广场" />
 </p>
 
 「朋友圈」是好友私域，「广场」是公开社区。今日活跃排行榜、发帖、点赞、评论——**一个项目里同时实现了私域社交和公域社区两套逻辑。**
@@ -113,7 +127,7 @@
 ### 文件管理
 
 <p align="center">
-  <img src="./截图/聊天文件管理.png" width="70%" alt="文件管理" />
+  <img src="./截图/聊天文件管理.png" width="100%" alt="文件管理" />
 </p>
 
 所有聊天中收发过的文件集中管理，按类型筛选，随时下载。
@@ -121,9 +135,11 @@
 ### 个人设置
 
 <p align="center">
-  <img src="./截图/个人管理.png" width="30%" alt="个人资料" />
-  &nbsp;&nbsp;
-  <img src="./截图/设置.png" width="30%" alt="设置" />
+  <img src="./截图/个人管理.png" width="100%" alt="个人资料" />
+</p>
+
+<p align="center">
+  <img src="./截图/设置.png" width="100%" alt="设置" />
 </p>
 
 修改头像、昵称、签名、性别——资料编辑完即时生效，缓存同步更新。
