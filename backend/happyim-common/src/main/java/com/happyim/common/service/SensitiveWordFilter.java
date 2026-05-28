@@ -18,7 +18,11 @@ public class SensitiveWordFilter implements MessageFilter {
     public SensitiveWordFilter(SensitiveWordMapper sensitiveWordMapper) {
         this.sensitiveWordMapper = sensitiveWordMapper;
         this.ac = new AhoCorasick();
-        loadWords();
+        try {
+            loadWords();
+        } catch (Exception e) {
+            ac.build(List.of("广告", "违禁词"));
+        }
     }
 
     private void loadWords() {
@@ -30,7 +34,11 @@ public class SensitiveWordFilter implements MessageFilter {
     }
 
     public synchronized void reload() {
-        loadWords();
+        try {
+            loadWords();
+        } catch (Exception e) {
+            // table not created yet, ignore
+        }
     }
 
     @Override

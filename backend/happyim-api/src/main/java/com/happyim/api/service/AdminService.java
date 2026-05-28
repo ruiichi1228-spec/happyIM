@@ -211,13 +211,17 @@ public class AdminService {
     // ==================== 初始化 ====================
 
     public void ensureDefaultAdmin() {
-        if (adminUserMapper.countAll() == 0) {
-            AdminUser admin = new AdminUser();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setNickname("系统管理员");
-            adminUserMapper.insert(admin);
-            log.info("已创建默认管理员账号: admin / admin123");
+        try {
+            if (adminUserMapper.countAll() == 0) {
+                AdminUser admin = new AdminUser();
+                admin.setUsername("admin");
+                admin.setPassword(passwordEncoder.encode("admin123"));
+                admin.setNickname("系统管理员");
+                adminUserMapper.insert(admin);
+                log.info("已创建默认管理员账号: admin / admin123");
+            }
+        } catch (Exception e) {
+            log.warn("无法初始化默认管理员账号（表可能尚未创建）: {}", e.getMessage());
         }
     }
 }
