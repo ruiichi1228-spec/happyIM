@@ -11,7 +11,7 @@ import com.happyim.common.model.entity.Conversation;
 import com.happyim.common.model.entity.GroupChat;
 import com.happyim.common.model.entity.GroupMember;
 import com.happyim.common.model.entity.User;
-import com.happyim.user.service.IdGenerator;
+import com.happyim.common.service.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

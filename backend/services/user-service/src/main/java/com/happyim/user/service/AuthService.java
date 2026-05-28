@@ -5,7 +5,7 @@ import com.happyim.common.util.ErrorCode;
 import com.happyim.common.mapper.UserMapper;
 import com.happyim.common.model.dto.*;
 import com.happyim.common.model.entity.User;
-import com.happyim.user.service.IdGenerator;
+import com.happyim.common.service.IdGenerator;
 import com.happyim.common.security.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

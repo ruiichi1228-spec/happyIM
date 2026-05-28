@@ -8,6 +8,9 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
+      config:
+        import-check:
+          enabled: false
   data:
     redis:
       host: localhost
@@ -48,6 +51,13 @@ happyim:
   mq:
     exchange: happyim.exchange
     routing-key: system.message
+
+# Not used by user-service but required by common's MinioConfig
+minio:
+  endpoint: http://localhost:9002
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: happyim
 
 management:
   endpoints:
