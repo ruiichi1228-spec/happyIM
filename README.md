@@ -1,111 +1,227 @@
-# HappyIM — 从零搭建一个属于自己的即时通讯应用
+# HappyIM — 不只是 Demo，这是一套能打的即时通讯系统
 
-HappyIM 是一个**开箱即用、适合新手学习**的分布式即时通讯（IM）系统。仿微信风格界面，一条命令即可在本地跑起完整的前后端服务。
+<p align="center">
+  <img src="./截图/聊天页面，白色.png" width="45%" alt="亮色模式" />
+  &nbsp;&nbsp;
+  <img src="./截图/聊天页面，黑色.png" width="45%" alt="暗色模式" />
+</p>
 
-**这不仅仅是一个 Demo** — 它从消息路由、WebSocket 长连接、离线消息推送到敏感词过滤，完整覆盖了 IM 系统的核心技术链路。如果你是 Java 初学者或正在准备面试项目，HappyIM 能帮你快速理解一个「像样的 IM」是怎么搭起来的。
+<p align="center">
+  <b>亮 / 暗双主题 · 仿微信交互 · 一套代码全栈吃透</b>
+</p>
 
-## 为什么适合新手
+---
 
-- **一键启动**：`docker-compose up` 拉起全部中间件，无需手动安装 MySQL / Redis / RabbitMQ / MinIO
-- **代码注释清晰**：Controller → Service → Mapper 三层结构，路径短，跟读无压力
-- **前后端分离**：Vue 3 前端 + Spring Boot 后端，部署时完全独立，方便理解 HTTP + WebSocket 两种通信模式
-- **覆盖面试高频技术点**：消息队列、WebSocket 长连接、JWT 鉴权、分布式 ID 生成、敏感词过滤
-- **拿来就能改**：以 HappyIM 为骨架，你可以扩展表情包、语音消息、群机器人等进阶功能
+**HappyIM 远不止是一个「玩具项目」。** 它用最贴近生产环境的技术选型，完整实现了一款即时通讯应用该有的全部核心功能。单聊、群聊、朋友圈、广场社区、文件管理、离线消息推送——你每天在微信里用到的东西，这里全都有，而且你可以一行一行地读懂它是怎么实现的。
 
-## 功能一览
+> 不用再对着抽象的系统设计图空想 IM 架构了。clone 下来，`docker-compose up`，你就能在本地跑起一个五脏俱全的 IM 系统。
 
-| 模块 | 已实现功能 |
-|------|-----------|
-| 用户系统 | 注册 / 登录 / 重置密码、邮箱验证码、JWT 双 Token 续期 |
-| 即时通讯 | 单聊 / 群聊、WebSocket 长连接、消息已读未读 |
-| 离线消息 | 用户离线时消息暂存，上线后自动推送 |
-| 朋友圈 | 图文 / 视频动态发布、点赞、评论、消息通知 |
-| 广场 | 公开帖子发布、排行榜、点赞评论 |
-| 联系人 | 好友搜索 / 添加 / 备注 / 星标、黑名单 |
-| 文件管理 | 文件上传下载、图片视频预览 |
-| 安全过滤 | 敏感词过滤、XSS 防护 |
-| 主题切换 | 亮色 / 暗色一键切换 |
+---
 
-## 技术栈
+## 为什么要看这个项目
 
-| 层级 | 技术 |
-|------|------|
-| 前端 | Vue 3 (Composition API) · Vite · Element Plus · Axios |
-| 后端 | Spring Boot 3 · Spring WebSocket · MyBatis |
-| 数据库 | MySQL 8 · Redis 7 · MongoDB 7 |
-| 消息队列 | RabbitMQ |
-| 对象存储 | MinIO |
-| 容器化 | Docker · Docker Compose |
+市面上大部分 IM 教程止步于「一个聊天室 Demo」——没有离线消息、没有群聊、没有文件管理、没有朋友圈，面试官一问就穿帮。
 
-## 5 分钟快速启动
+**HappyIM 不一样：**
 
-### 前置要求
+- 你写进简历的「分布式即时通讯系统」，它真的能做到每一帧截图都对得上
+- 前后端完全分离，Vue 3 + Spring Boot，两个技术栈一起练
+- 消息经过 RabbitMQ 路由，WebSocket 节点可横向扩展——这就是生产环境的骨架
+- 5000+ 行 Java 后端代码、4000+ 行 Vue 前端代码，**足够有深度，又不会让你陷入烂尾**
 
-- Docker Desktop（或 Docker + Docker Compose）
-- JDK 17+
-- Node.js 18+
+---
 
-### 第一步：启动基础服务
+## 先看效果
+
+### 登录与注册
+
+<p align="center">
+  <img src="./截图/登录.png" width="40%" alt="登录" />
+  &nbsp;&nbsp;
+  <img src="./截图/创建.png" width="40%" alt="注册" />
+</p>
+
+毛玻璃雨滴特效、邮箱验证码注册、注册时自选默认头像——**登录页就开始堆细节**，不糊弄。
+
+### 聊天 — 整个系统的核心
+
+<p align="center">
+  <img src="./截图/聊天页面，白色.png" width="90%" alt="聊天主界面" />
+</p>
+
+- **WebSocket 长连接**，消息实时送达，不是轮询
+- 支持文字、图片、视频、文件，消息类型全链路打通
+- **离线消息自动推送**——关掉页面再打开，未读消息一条不落
+- 消息状态追踪：发送中 → 已送达 → 已读
+
+<p align="center">
+  <img src="./截图/会话图片查看.png" width="30%" alt="图片预览" />
+  &nbsp;&nbsp;
+  <img src="./截图/会话视频播放.png" width="30%" alt="视频播放" />
+  &nbsp;&nbsp;
+  <img src="./截图/文件发送.png" width="30%" alt="文件发送" />
+</p>
+
+图片点击放大预览、视频内联播放、文件上传下载——**不是只发文字的聊天室，是真的能传文件的 IM。**
+
+### 群聊
+
+<p align="center">
+  <img src="./截图/聊天-群聊抽屉.png" width="60%" alt="群聊" />
+</p>
+
+创建群聊、群成员管理、群公告、群内禁言——微信群的基础功能一个不少。
+
+### 联系人管理
+
+<p align="center">
+  <img src="./截图/联系人-私人管理.png" width="30%" alt="联系人" />
+  &nbsp;&nbsp;
+  <img src="./截图/联系人-好友申请管理.png" width="30%" alt="好友申请" />
+  &nbsp;&nbsp;
+  <img src="./截图/联系人-群聊管理.png" width="30%" alt="群聊管理" />
+</p>
+
+好友搜索 / 添加 / 备注 / 星标 / 黑名单，好友申请审批流，群聊创建与管理——**完整的好友关系链**，不是简单的「所有人互发消息」。
+
+### 个人名片
+
+<p align="center">
+  <img src="./截图/会话个人名片.png" width="40%" alt="个人名片" />
+</p>
+
+点击头像弹出名片卡，查看对方详细资料——交互细节做到位。
+
+### 朋友圈
+
+<p align="center">
+  <img src="./截图/朋友圈发布.png" width="45%" alt="发布朋友圈" />
+  &nbsp;&nbsp;
+  <img src="./截图/朋友圈信箱.png" width="45%" alt="朋友圈通知" />
+</p>
+
+图文动态发布、视频动态、点赞、评论、回复评论、消息通知——**微信朋友圈的核心体验完整复刻。**
+
+### 广场 — 公开社区
+
+<p align="center">
+  <img src="./截图/广场.png" width="70%" alt="广场" />
+</p>
+
+「朋友圈」是好友私域，「广场」是公开社区。今日活跃排行榜、发帖、点赞、评论——**一个项目里同时实现了私域社交和公域社区两套逻辑。**
+
+### 文件管理
+
+<p align="center">
+  <img src="./截图/聊天文件管理.png" width="70%" alt="文件管理" />
+</p>
+
+所有聊天中收发过的文件集中管理，按类型筛选，随时下载。
+
+### 个人设置
+
+<p align="center">
+  <img src="./截图/个人管理.png" width="30%" alt="个人资料" />
+  &nbsp;&nbsp;
+  <img src="./截图/设置.png" width="30%" alt="设置" />
+</p>
+
+修改头像、昵称、签名、性别——资料编辑完即时生效，缓存同步更新。
+
+---
+
+## 技术架构
+
+<p align="center">
+  <b>前端 Vue 3</b> ← HTTP / WebSocket → <b>Spring Boot API</b> → <b>RabbitMQ</b> → <b>WebSocket 节点</b><br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MySQL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Redis&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MongoDB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MinIO
+</p>
+
+| 层级 | 技术栈 | 为什么选它 |
+|------|--------|-----------|
+| 前端框架 | Vue 3 + Composition API + Vite | 响应式 + HMR 极速开发体验 |
+| UI 组件库 | Element Plus | 企业级组件，暗色主题开箱即用 |
+| 后端框架 | Spring Boot 3 | Java 生态事实标准，新手友好 |
+| 即时通信 | WebSocket (Spring) | 原生支持，无需额外服务 |
+| 消息队列 | RabbitMQ | 解耦消息收发，WebSocket 节点可水平扩展 |
+| 关系型数据库 | MySQL 8 | 用户、好友、群组等结构化数据 |
+| 缓存 | Redis 7 | 验证码、Token 黑名单、在线状态 |
+| 文档数据库 | MongoDB 7 | 离线消息持久化，消息体灵活 Schema |
+| 对象存储 | MinIO | S3 兼容，图片/视频/文件统一存储 |
+| 安全 | JWT 双 Token + BCrypt | 无状态鉴权，自动续期 |
+| 容器化 | Docker Compose | 一键拉起全部中间件 |
+
+**面试的时候，这张表背下来就够了。**
+
+---
+
+## 5 分钟跑起来
 
 ```bash
+# 1. 拉代码
+git clone https://github.com/ruiichi1228-spec/happyIM.git
+cd happyIM
+
+# 2. 启动中间件（MySQL + Redis + MongoDB + RabbitMQ + MinIO）
 docker-compose up -d
-```
 
-这会启动 MySQL、Redis、MongoDB、RabbitMQ、MinIO，端口映射如下：
-
-| 服务 | 端口 |
-|------|------|
-| MySQL | 3308 |
-| Redis | 6380 |
-| MongoDB | 27019 |
-| RabbitMQ | 5673（管理界面 15673） |
-| MinIO | 9002（控制台 9003） |
-
-### 第二步：启动后端
-
-```bash
+# 3. 启动后端
 cd backend
 mvn clean package -DskipTests
 java -jar happyim-api/target/happyim-api-1.0.0.jar
-```
 
-API 服务运行在 `http://localhost:8080`
-
-### 第三步：启动前端
-
-```bash
+# 4. 新开终端，启动前端
 cd frontend
 npm install
 npm run dev
 ```
 
-浏览器打开 `http://localhost:5173`，注册账号即可开始使用。
+浏览器打开 `http://localhost:5173`，注册两个账号，开始在两个窗口互发消息。
+
+---
 
 ## 项目结构
 
 ```
 happyIM/
-├── frontend/               # Vue 3 前端
+├── frontend/                  # Vue 3 前端（4000+ 行）
 │   └── src/
-│       ├── pages/           # 页面组件（登录、聊天、朋友圈、广场...）
-│       ├── components/      # 通用组件
-│       ├── utils/           # 工具函数（WebSocket、userCache、主题...）
-│       └── router/          # 路由配置
-├── backend/                 # Spring Boot 后端
-│   ├── happyim-api/         # REST API 模块（8080 端口）
-│   ├── happyim-ws/          # WebSocket 模块（8081 端口）
-│   └── happyim-common/      # 公共模块（实体、DTO、工具类）
-├── docker-compose.yml       # 本地开发中间件
+│       ├── pages/              # ChatPage / MomentsPage / SquarePage / LoginPage ...
+│       ├── layouts/            # MainLayout（侧边栏导航）
+│       ├── components/         # 通用组件
+│       ├── utils/              # WebSocket / userCache / theme / request
+│       └── router/             # 路由
+├── backend/                    # Spring Boot 后端（5000+ 行）
+│   ├── happyim-api/            # REST API，端口 8080
+│   ├── happyim-ws/             # WebSocket 服务，端口 8081
+│   └── happyim-common/         # 实体 / DTO / Mapper / 工具类
+├── 截图/                       # 项目截图（就是上面那些）
+├── docker-compose.yml          # 一键启动开发环境
 └── README.md
 ```
 
-## 学习路线建议
+---
 
-1. **先跑起来**：按上面步骤启动，注册两个账号互发消息，感受完整流程
-2. **读前端**：从 `LoginPage.vue` → `ChatPage.vue` 理解 WebSocket 连接和消息收发
-3. **读后端**：从 `AuthController` 看注册登录 → `MessageController` 看消息发送 → `ChatWebSocketHandler` 看长连接管理
-4. **扩展练习**：试着给消息加上「撤回」功能，或给朋友圈加上「转发」
+## 新手学习路线
+
+| 天数 | 看什么 | 学到什么 |
+|------|--------|---------|
+| Day 1 | `docker-compose up` 跑起来，注册登录，发消息 | 感受完整流程，建立信心 |
+| Day 2 | `LoginPage.vue` → `AuthController.java` → `AuthService.java` | 前后端如何协作完成注册登录、JWT 鉴权 |
+| Day 3 | `ChatPage.vue` + `websocket.js` → `ChatWebSocketHandler.java` | WebSocket 连接建立、心跳保活、消息收发 |
+| Day 4 | `MessageService.java` → RabbitMQ → `MessageConsumer.java` | 消息如何通过队列路由到正确的 WebSocket 节点 |
+| Day 5 | `MomentsPage.vue` → `MomentController.java` | 朋友圈的发布、点赞、评论、通知完整链路 |
+| Day 6 | `SquarePage.vue` → `SquareController.java` | 公开广场的帖子流 + 排行榜 |
+| Day 7 | 自己动手加功能 | 消息撤回？表情包？语音消息？从这里开始 |
+
+
+## Star 历史
+
+如果这个项目帮到了你，点个 Star 让更多人看到——也让我知道有人在用，有动力继续维护。
+
+---
 
 ## License
 
-MIT
+MIT — 拿去用，拿去改，拿去写在简历上。
