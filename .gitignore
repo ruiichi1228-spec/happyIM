@@ -39,6 +39,7 @@ frontend reference/
 .env
 *.env
 !*.env.example
+application-dev.yml
 
 # RAR / archives
 *.rar
