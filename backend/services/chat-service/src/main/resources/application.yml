@@ -1,0 +1,44 @@
+server:
+  port: 8102
+
+spring:
+  application:
+    name: chat-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  data:
+    mongodb:
+      uri: mongodb://localhost:27019/happyim
+    redis:
+      host: localhost
+      port: 6380
+  rabbitmq:
+    host: localhost
+    port: 5673
+    username: guest
+    password: guest
+
+# TODO Phase 4: remove MySQL config, use Feign for user/group data
+  datasource:
+    url: jdbc:mysql://localhost:3308/happyim?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+happyim:
+  mq:
+    exchange: happyim.exchange
+    routing-key: chat.message
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
