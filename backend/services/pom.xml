@@ -19,7 +19,7 @@
         <module>content-service</module>
         <module>chat-service</module>
         <module>chat-ws</module>
-        <!-- <module>user-service</module> -->
+        <module>user-service</module>
     </modules>
 
     <dependencies>

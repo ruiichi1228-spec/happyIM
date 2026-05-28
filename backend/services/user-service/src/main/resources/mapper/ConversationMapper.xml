@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.happyim.common.mapper.ConversationMapper">
+
+    <resultMap id="convMap" type="com.happyim.common.model.entity.Conversation">
+        <id property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT IGNORE INTO conversation (id, type) VALUES (#{id}, #{type})
+    </insert>
+
+    <select id="findById" resultMap="convMap">
+        SELECT * FROM conversation WHERE id = #{id}
+    </select>
+
+</mapper>
