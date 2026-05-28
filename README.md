@@ -1,3 +1,6 @@
+<img width="655" height="745" alt="image" src="https://github.com/user-attachments/assets/99053d3b-1b80-42aa-b85e-c79f472704a7" />
+
+
 # HappyIM — 不只是 Demo，这是一套能打的即时通讯系统
 
 <p align="center">
