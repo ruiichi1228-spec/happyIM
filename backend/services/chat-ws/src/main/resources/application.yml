@@ -2,6 +2,12 @@ spring:
   profiles:
     active: dev
 
+  cloud:
+    nacos:
+      config:
+        import-check:
+          enabled: false
+
   datasource:
     url: jdbc:mysql://localhost:3308/happyim?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
@@ -50,10 +56,3 @@ logging:
   level:
     root: INFO
     com.happyim: DEBUG
-
-spring:
-  cloud:
-    nacos:
-      config:
-        import-check:
-          enabled: false
