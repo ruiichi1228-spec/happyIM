@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.happyim.common.mapper.GroupChatMapper">
+
+    <resultMap id="groupMap" type="com.happyim.common.model.entity.GroupChat">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="description" column="description"/>
+        <result property="notice" column="notice"/>
+        <result property="memberCount" column="member_count"/>
+        <result property="maxMembers" column="max_members"/>
+        <result property="allowInvite" column="allow_invite"/>
+        <result property="status" column="status"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO group_chat (id, name, owner_id, avatar_url, description, allow_invite)
+        VALUES (#{id}, #{name}, #{ownerId}, #{avatarUrl}, #{description}, #{allowInvite})
+    </insert>
+
+    <select id="findById" resultMap="groupMap">
+        SELECT * FROM group_chat WHERE id = #{id}
+    </select>
+
+    <select id="findByMemberId" resultMap="groupMap">
+        SELECT g.* FROM group_chat g
+        INNER JOIN group_member gm ON g.id = gm.group_id
+        WHERE gm.user_id = #{userId} AND g.status = 0
+        ORDER BY g.updated_time DESC
+    </select>
+
+    <update id="updateInfo" parameterType="map">
+        UPDATE group_chat
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="notice != null">notice = #{notice},</if>
+            <if test="allowInvite != null">allow_invite = #{allowInvite},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateMemberCount">
+        UPDATE group_chat SET member_count = member_count + #{delta} WHERE id = #{id}
+    </update>
+
+    <update id="dissolve">
+        UPDATE group_chat SET status = 1 WHERE id = #{id}
+    </update>
+
+</mapper>

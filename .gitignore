@@ -1,0 +1,46 @@
+# Maven
+target/
+.m2/
+*.jar
+*.war
+
+# Node
+node_modules/
+dist/
+.vite/
+npm-debug.log
+yarn-error.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Docker
+.docker/
+
+# Reference / template code
+frontend reference/
+
+# Claude Code
+.claude/
+
+# Environment / secrets
+.env
+*.env
+!*.env.example
+
+# RAR / archives
+*.rar
+*.zip
+*.7z

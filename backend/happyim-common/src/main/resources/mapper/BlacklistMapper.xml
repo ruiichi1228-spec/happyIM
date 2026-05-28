@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.happyim.common.mapper.BlacklistMapper">
+
+    <resultMap id="blacklistMap" type="com.happyim.common.model.entity.Blacklist">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="blockedUserId" column="blocked_user_id"/>
+        <result property="reason" column="reason"/>
+        <result property="createdTime" column="created_time"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO blacklist (user_id, blocked_user_id, reason)
+        VALUES (#{userId}, #{blockedUserId}, #{reason})
+    </insert>
+
+    <select id="findByPair" resultMap="blacklistMap">
+        SELECT * FROM blacklist WHERE user_id = #{userId} AND blocked_user_id = #{blockedUserId}
+    </select>
+
+    <select id="findByUserId" resultMap="blacklistMap">
+        SELECT * FROM blacklist WHERE user_id = #{userId}
+    </select>
+
+    <delete id="deleteByPair">
+        DELETE FROM blacklist WHERE user_id = #{userId} AND blocked_user_id = #{blockedUserId}
+    </delete>
+
+</mapper>

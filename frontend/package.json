@@ -1,0 +1,24 @@
+{
+  "name": "happyim-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "axios": "^1.13.2",
+    "element-plus": "^2.11.8",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@iconify/json": "^2.2.479",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "unplugin-icons": "^23.0.1",
+    "vite": "^7.1.11"
+  }
+}
