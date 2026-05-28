@@ -219,7 +219,9 @@ happyIM/
 │   ├── happyim-api/            # REST API，端口 8080
 │   ├── happyim-ws/             # WebSocket 服务，端口 8081
 │   └── happyim-common/         # 实体 / DTO / Mapper / 工具类
-├── 截图/                       # 项目截图（就是上面那些）
+├── docs/                       # 设计文档（模块设计 + 完整架构报告）
+│   └── final/                  # 架构终稿
+├── 截图/                       # 项目截图
 ├── docker-compose.yml          # 一键启动开发环境
 └── README.md
 ```
