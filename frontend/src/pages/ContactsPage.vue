@@ -57,7 +57,7 @@
             <el-avatar :src="g.avatarUrl" :size="36" shape="square">{{ g.name?.charAt(0) }}</el-avatar>
             <div class="friend-text">
               <div class="friend-name">{{ g.name }}</div>
-              <div class="friend-sub">{{ g.memberCount }} 人</div>
+              
             </div>
           </div>
           <div v-if="groups.length === 0" class="empty-hint">暂无群聊</div>
