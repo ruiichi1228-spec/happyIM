@@ -248,6 +248,7 @@ public class MessageService {
             redisHash.put("peer_id", String.valueOf(item.getOrDefault("peerId", "")));
             redisHash.put("peer_name", String.valueOf(item.getOrDefault("peerName", "")));
             redisHash.put("peer_avatar", String.valueOf(item.getOrDefault("peerAvatar", "")));
+            redisHash.put("member_count", String.valueOf(item.getOrDefault("memberCount", "0")));
             redisHash.put("last_msg_content", String.valueOf(item.get("lastMsgContent")));
             redisHash.put("last_msg_time", String.valueOf(item.get("lastMsgTime")));
             redisHash.put("last_sender_id", String.valueOf(item.get("lastSenderId")));
@@ -279,6 +280,7 @@ public class MessageService {
                 item.put("peerId", String.valueOf(hash.getOrDefault("peer_id", "")));
                 item.put("peerName", String.valueOf(hash.getOrDefault("peer_name", "")));
                 item.put("peerAvatar", String.valueOf(hash.getOrDefault("peer_avatar", "")));
+                item.put("memberCount", Integer.valueOf(String.valueOf(hash.getOrDefault("member_count", "0"))));
                 item.put("lastMsgContent", String.valueOf(hash.getOrDefault("last_msg_content", "")));
                 item.put("lastMsgType", "");
                 item.put("lastMsgTime", hash.getOrDefault("last_msg_time", "0"));
