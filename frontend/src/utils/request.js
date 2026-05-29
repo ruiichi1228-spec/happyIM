@@ -67,10 +67,12 @@ request.interceptors.response.use(
           router.push('/login')
           return Promise.reject(refreshError)
         }
-      } else {
-        clearAuth()
-        router.push('/login')
       }
+    }
+
+    if (error.response?.status === 401) {
+      clearAuth()
+      router.push('/login')
     }
 
     return Promise.reject(error)
