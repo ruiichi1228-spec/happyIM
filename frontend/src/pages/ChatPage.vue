@@ -43,7 +43,7 @@
     <div class="chat-main">
       <template v-if="activeSession">
         <div class="chat-header">
-          <span class="chat-name">{{ activeSession.peerName }}<span v-if="activeSession.type == 1" class="chat-group-tag">群聊 ({{ activeSession.memberCount || 0 }}人)</span></span>
+          <span class="chat-name">{{ activeSession.peerName }}<span v-if="activeSession.type == 1" class="chat-group-tag">群聊 ({{ groupCache.get(activeSession.peerId)?.memberCount || 0 }}人)</span></span>
           <div class="header-actions">
             <el-icon class="more-icon" @click="historyVisible = true"><Clock /></el-icon>
             <el-icon class="more-icon" @click="drawerOpen = !drawerOpen"><MoreFilled /></el-icon>
@@ -563,6 +563,7 @@
 import { ref, computed, onMounted, nextTick, inject, watch } from 'vue'
 import { useWebSocket } from '@/utils/websocket'
 import { useUserCache } from '@/utils/userCache'
+import { useGroupCache } from '@/utils/groupCache'
 import IconEmoticon from '~icons/mdi/emoticon-happy-outline'
 import request from '@/utils/request'
 import { Search, Plus, MoreFilled, ChatLineSquare, Picture, Folder, Document, CopyDocument, RefreshLeft, Delete, Top, Loading, Clock, WarningFilled, EditPen, Star, StarFilled, SwitchButton, Switch, Check, Close, UserFilled, Microphone, Location, LocationFilled, Download } from '@element-plus/icons-vue'
@@ -570,6 +571,7 @@ import WechatEmojiPicker from '@/components/WechatEmojiPicker.vue'
 import { ElMessage } from 'element-plus'
 
 const userCache = useUserCache()
+const groupCache = useGroupCache()
 const myUserId = ref(0), myName = ref(''), myAvatar = ref('')
 const searchText = ref(''), sessions = ref([]), activeSession = ref(null)
 const msgText = ref(''), messages = ref([]), msgListRef = ref(null)
@@ -1103,7 +1105,7 @@ const clearHistory = async () => {
   if (!activeSession.value) return
   try { await request.delete(`/conversations/${activeSession.value.conversationId}/messages`); messages.value = []; ElMessage.success('聊天记录已清除') } catch(e) { ElMessage.error('清除失败') }
 }
-const fetchSessions = async () => { try { const res = await request.get('/conversations'); if (res.code===0) { sessions.value = res.data; updateUnread(res.data.reduce((s, x) => s + (x.unreadCount||0), 0)); const peerIds = res.data.map(s => s.type === 0 ? s.peerId : null).filter(Boolean); userCache.batchFetch(peerIds) } } catch(e) {} }
+const fetchSessions = async () => { try { const res = await request.get('/conversations'); if (res.code===0) { sessions.value = res.data; updateUnread(res.data.reduce((s, x) => s + (x.unreadCount||0), 0)); const userIds = res.data.filter(s => s.type === 0).map(s => s.peerId).filter(Boolean); const groupIds = res.data.filter(s => s.type === 1).map(s => s.peerId).filter(Boolean); userCache.batchFetch(userIds); groupCache.batchFetch(groupIds) } } catch(e) {} }
 const fetchFriends = async () => { try { const res = await request.get('/friends'); if (res.code===0) { friends.value = res.data; userCache.setAll(res.data) } } catch(e) {} }
 
 // ===== 创建聊天 =====

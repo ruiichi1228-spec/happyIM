@@ -4,6 +4,7 @@ import com.happyim.common.util.ApiResponse;
 import com.happyim.common.util.BizException;
 import com.happyim.common.util.ErrorCode;
 import com.happyim.common.model.dto.*;
+import com.happyim.common.mapper.GroupChatMapper;
 import com.happyim.common.mapper.GroupMemberMapper;
 import com.happyim.common.model.entity.GroupChat;
 import com.happyim.common.model.entity.GroupMember;
@@ -14,9 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -24,10 +24,13 @@ public class GroupController {
 
     private final GroupService groupService;
     private final GroupMemberMapper groupMemberMapper;
+    private final GroupChatMapper groupChatMapper;
     private final JwtUtil jwtUtil;
 
-    public GroupController(GroupService groupService, JwtUtil jwtUtil, GroupMemberMapper groupMemberMapper) {
+    public GroupController(GroupService groupService, JwtUtil jwtUtil,
+                           GroupMemberMapper groupMemberMapper, GroupChatMapper groupChatMapper) {
         this.groupService = groupService;
+        this.groupChatMapper = groupChatMapper;
         this.jwtUtil = jwtUtil;
         this.groupMemberMapper = groupMemberMapper;
     }
@@ -117,6 +120,24 @@ public class GroupController {
                                       @RequestBody Map<String, Integer> body, HttpServletRequest request) {
         groupService.setRole(groupId, getUserId(request), userId, body.get("role"));
         return ApiResponse.message("角色已更新");
+    }
+
+    // 批量查询群信息（供前端 groupCache 使用）
+    @PostMapping("/batch")
+    public ApiResponse<List<Map<String, Object>>> batchGroups(@RequestBody List<Long> groupIds) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Long id : groupIds) {
+            GroupChat g = groupChatMapper.findById(id);
+            if (g != null) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("groupId", g.getId());
+                item.put("name", g.getName());
+                item.put("avatarUrl", g.getAvatarUrl());
+                item.put("memberCount", g.getMemberCount());
+                result.add(item);
+            }
+        }
+        return ApiResponse.success(result);
     }
 
     private Long getUserId(HttpServletRequest request) {
