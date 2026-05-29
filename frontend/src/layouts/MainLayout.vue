@@ -113,7 +113,7 @@
         <div class="rp-empty" v-else>暂无公告</div>
       </div>
       <div class="rp-section">
-        <div class="rp-title">🟢 在线好友 ({{ onlineFriends.length }})</div>
+        <div class="rp-title">🟢 在线 ({{ onlineFriends.length }})</div>
         <div class="rp-online-list" v-if="onlineFriends.length">
           <div v-for="f in onlineFriends" :key="f.userId" class="rp-online-item" @click="go('/chat')">
             <el-avatar :src="f.avatarUrl" :size="28" shape="square">{{ f.nickname?.charAt(0) }}</el-avatar>
@@ -559,7 +559,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.app-wrapper { width:100%; max-width:60%; min-width:900px; margin:0 auto; display:flex; padding:12px 0; height:100vh; box-sizing:border-box; }
+.app-wrapper { width:100%; max-width:70%; min-width:900px; margin:0 auto; display:flex; padding:12px 0; height:100vh; box-sizing:border-box; }
 .layout { width:100%;
   display: flex;
   height: 100%;
@@ -731,7 +731,7 @@ onMounted(() => {
 .ann-pop-empty { text-align:center; color:#ccc; padding:20px; font-size:13px; }
 
 /* 右侧信息栏 */
-.right-panel { width:180px; min-width:180px; border-left:1px solid #e8e8e8; padding:16px 12px; display:flex; flex-direction:column; gap:16px; overflow-y:auto; }
+.right-panel { width:160px; min-width:160px; border-left:1px solid #e8e8e8; padding:12px 10px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; }
 .rp-title { font-size:13px; font-weight:600; color:#666; margin-bottom:8px; }
 .rp-ann { font-size:12px; color:#8c6a00; background:#fffbe6; padding:8px 10px; border-radius:6px; line-height:1.6; }
 .rp-empty { font-size:12px; color:#ccc; padding:10px; text-align:center; }
