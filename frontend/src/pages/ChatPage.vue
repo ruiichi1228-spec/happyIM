@@ -195,7 +195,7 @@
             <div v-for="m in mentionFiltered" :key="m.userId" class="mention-item" @click="selectMention(m)">
               {{ m.nickname || m.username }}
             </div>
-            <div v-if="!mentionFiltered.length" class="mention-empty">无匹配成员</div>
+            <div v-if="!mentionFiltered.length" class="mention-empty">{{ groupMembers.length ? '无匹配成员' : '加载中...' }}</div>
           </div>
           <el-input v-model="msgText" type="textarea" :rows="4" placeholder="" resize="none"
             @keydown.enter.exact.prevent="sendText" />
@@ -607,7 +607,6 @@ const removeMention = (uid) => { mentionChips.value = mentionChips.value.filter(
 watch(msgText, (val) => {
   if (!activeSession.value || activeSession.value.type != 1) { showMentionPopup.value = false; return }
   const idx = (val || '').lastIndexOf('@')
-  console.log('@ watch:', idx, 'members:', (groupMembers.value||[]).length)
   if (idx >= 0) {
     const after = (val || '').substring(idx + 1)
     if (!after.includes(' ') && !after.includes('\n')) {
