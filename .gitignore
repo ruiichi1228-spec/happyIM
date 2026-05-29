@@ -45,4 +45,4 @@ application-dev.yml
 *.rar
 *.zip
 *.7z
-.gitignore plan.md
+plan.md
