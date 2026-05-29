@@ -55,5 +55,5 @@ export function useGroupCache() {
     }
   }
 
-  return { get, set, batchFetch }
+  return { get, set, batchFetch, groups }
 }
