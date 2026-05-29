@@ -116,6 +116,11 @@ public class GroupService {
         allMemberIds.addAll(req.getMemberIds());
         ensureConversation("g_" + groupId, 1);
 
+        // 广播系统消息：通知所有成员群已创建
+        User ownerUser = userMapper.findById(ownerId);
+        String ownerName = ownerUser != null ? ownerUser.getNickname() : String.valueOf(ownerId);
+        sendSystemMessage("g_" + groupId, 1, ownerName + " 创建了群聊", "group_create", "system");
+
         log.info("群创建成功: id={}, name={}, owner={}", groupId, req.getName(), ownerId);
 
         return buildDetail(group, ownerId);
