@@ -296,10 +296,18 @@ watch(() => route.path, (path) => {
 
 const announceList = ref([])
 const announceCount = ref(0)
+const fetchAnnounceUnread = async () => {
+  try {
+    const res = await request.get('/admin/announcements/unread')
+    if (res.code === 0) announceCount.value = res.data
+  } catch(e) {}
+}
 const loadAnnouncements = async () => {
   try {
     const res = await request.get('/admin/announcements')
-    if (res.code === 0) { announceList.value = res.data; announceCount.value = 0 }
+    if (res.code === 0) announceList.value = res.data
+    announceCount.value = 0
+    request.put('/admin/announcements/read').catch(()=>{})
   } catch(e) {}
 }
 const formatAnnTime = (ts) => {
@@ -473,6 +481,7 @@ onMounted(() => {
   fetchPendingCount()
   fetchMomentNotices()
   fetchSquareNotices()
+  fetchAnnounceUnread()
   connect()
   onMessage((msg) => {
     if (msg.action === 'event') {
@@ -482,7 +491,7 @@ onMounted(() => {
       else if (type === 'square_notify') { fetchSquareNotices(); playSquareSound() }
     }
     if (msg.action === 'event' && msg.data?.type === 'announcement') {
-      announceCount.value++
+      fetchAnnounceUnread()
     }
     if (msg.action === 'new_message') { playMsgSound(); totalUnread.value++ }
   })
@@ -490,7 +499,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.app-wrapper { width:100%; max-width:76%; min-width:900px; margin:0 auto; display:flex; padding:12px 0; height:100vh; box-sizing:border-box; }
+.app-wrapper { width:100%; max-width:60%; min-width:900px; margin:0 auto; display:flex; padding:12px 0; height:100vh; box-sizing:border-box; }
 .layout { width:100%;
   display: flex;
   height: 100%;

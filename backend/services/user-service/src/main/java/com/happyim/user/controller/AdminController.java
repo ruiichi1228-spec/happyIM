@@ -131,6 +131,19 @@ public class AdminController {
         return ApiResponse.message("success");
     }
 
+    @GetMapping("/announcements/unread")
+    public ApiResponse<Integer> getAnnounceUnread(HttpServletRequest request) {
+        Long userId = Long.valueOf(request.getHeader("X-User-Id"));
+        return ApiResponse.success(adminService.getAnnounceUnread(userId));
+    }
+
+    @PutMapping("/announcements/read")
+    public ApiResponse<?> clearAnnounceUnread(HttpServletRequest request) {
+        Long userId = Long.valueOf(request.getHeader("X-User-Id"));
+        adminService.clearAnnounceUnread(userId);
+        return ApiResponse.message("success");
+    }
+
     // ==================== 文件管理 ====================
 
     @AdminRequired

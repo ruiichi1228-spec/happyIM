@@ -315,6 +315,11 @@ public class AdminService {
         ann.setCreatedBy(adminId);
         announcementMapper.insert(ann);
 
+        // 所有用户公告未读 +1
+        mongoTemplate.updateMulti(new Query(),
+                new org.springframework.data.mongodb.core.query.Update().inc("announceUnread", 1),
+                "user_summary");
+
         try {
             Map<String, Object> event = Map.of("type", "announcement", "content", content);
             rabbitTemplate.convertAndSend("happyim.exchange", "notify.announce", event);
@@ -322,6 +327,19 @@ public class AdminService {
             log.warn("公告MQ推送失败: {}", e.getMessage());
         }
         log.info("管理员发布公告: {}", content);
+    }
+
+    public int getAnnounceUnread(Long userId) {
+        Map<String, Object> summary = mongoTemplate.findById(userId, Map.class, "user_summary");
+        if (summary == null) return 0;
+        Object v = summary.get("announceUnread");
+        return v instanceof Number ? ((Number) v).intValue() : 0;
+    }
+
+    public void clearAnnounceUnread(Long userId) {
+        mongoTemplate.upsert(new Query(Criteria.where("_id").is(userId)),
+                new org.springframework.data.mongodb.core.query.Update().set("announceUnread", 0).setOnInsert("userId", userId),
+                "user_summary");
     }
 
     public void deleteAnnouncement(Long id) {
