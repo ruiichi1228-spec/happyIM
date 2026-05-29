@@ -729,7 +729,7 @@ const triggerFileInput = () => fileInputRef.value?.click()
 const selectSession = async (s) => {
   if (activeSession.value?.conversationId === s.conversationId) return
   send({action:'leave_conversation',data:{conversationId:activeSession.value?.conversationId||''}})
-  activeSession.value = s; drawerOpen.value = false; messages.value = []; hasMore.value = true
+  activeSession.value = s; drawerOpen.value = false; messages.value = []; hasMore.value = true; msgText.value = ''; mentionChips.value = []; quoting.value = null
   if (s.type == 1) {
     try { const res = await request.get(`/groups/${s.peerId}`); if (res.code===0) { groupDetail.value=res.data; groupMembers.value=res.data.members||[]; editGroup.value={name:res.data.name||'',notice:res.data.notice||'',description:res.data.description||'',allowInvite:res.data.allowInvite!==false}; userCache.setAll(res.data.members); const me = res.data.members?.find(m => m.userId === myUserId.value); myGroupNickname.value = me?.groupNickname || '' } } catch(e){}
   } else {
