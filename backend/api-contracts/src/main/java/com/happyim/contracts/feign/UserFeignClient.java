@@ -12,12 +12,18 @@ import java.util.Map;
 /**
  * user-service 对外暴露的 Feign 接口
  */
-@FeignClient(name = "user-service", path = "/api/users")
+@FeignClient(name = "user-service", path = "/api")
 public interface UserFeignClient {
 
-    @GetMapping("/{id}/profile")
+    @GetMapping("/users/{id}/profile")
     Map<String, Object> getUserProfile(@PathVariable("id") Long userId);
 
-    @PostMapping("/batch")
+    @PostMapping("/users/batch")
     List<Map<String, Object>> batchGetUsers(@RequestBody List<Long> userIds);
+
+    @GetMapping("/users/{userId}/friends")
+    List<Map<String, Object>> getUserFriends(@PathVariable Long userId);
+
+    @GetMapping("/groups/{groupId}")
+    Map<String, Object> getGroupInfo(@PathVariable Long groupId);
 }
