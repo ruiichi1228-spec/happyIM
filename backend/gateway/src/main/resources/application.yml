@@ -3,6 +3,8 @@ server:
   address: 0.0.0.0
 
 spring:
+  config:
+    import: nacos:happyim-common.yaml
   profiles:
     active: dev
   application:
@@ -13,7 +15,6 @@ spring:
         server-addr: localhost:8848
         ip: 127.0.0.1
       config:
-        import-check:
           enabled: false
     gateway:
       discovery:
