@@ -23,7 +23,7 @@ function flush() {
   console.log('[groupCache] batch fetch:', ids)
   request.post('/groups/batch', ids).then(res => {
     if (res.code === 0 && res.data) {
-      console.log('[groupCache] batch fetched', res.data.length, 'groups')
+      console.log('[groupCache] batch fetched', res.data.length, 'groups', JSON.stringify(res.data[0]))
       res.data.forEach(g => set(g.groupId || g.id, g))
     } else {
       console.log('[groupCache] batch fetch failed:', res)
