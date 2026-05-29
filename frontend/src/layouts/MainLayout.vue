@@ -909,4 +909,11 @@ html.dark .moment-comment, html.dark .post-comment { color:var(--text) !importan
 html.dark .comment-name, html.dark .comment-reply { color:#8ab4f8 !important; }
 html.dark .comment-del { color:var(--text-dim) !important; }
 html.dark .moment-likes, html.dark .post-likes { color:var(--text-dim) !important; }
+
+/* 公告弹窗暗色 */
+html.dark .ann-pop-title { color:#e0e0e0 !important; border-color:#333 !important; }
+html.dark .ann-pop-item { border-color:#2a2a2a !important; }
+html.dark .ann-pop-content { color:#ccc !important; }
+html.dark .ann-pop-time { color:#777 !important; }
+html.dark .ann-pop-empty { color:#555 !important; }
 </style>
