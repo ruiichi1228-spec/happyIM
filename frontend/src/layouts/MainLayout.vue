@@ -105,6 +105,26 @@
       <RouterView />
     </div>
 
+    <!-- 右侧信息栏 -->
+    <div class="right-panel">
+      <div class="rp-section">
+        <div class="rp-title">📢 最新公告</div>
+        <div class="rp-ann" v-if="latestAnn">{{ latestAnn }}</div>
+        <div class="rp-empty" v-else>暂无公告</div>
+      </div>
+      <div class="rp-section">
+        <div class="rp-title">🟢 在线好友 ({{ onlineFriends.length }})</div>
+        <div class="rp-online-list" v-if="onlineFriends.length">
+          <div v-for="f in onlineFriends" :key="f.userId" class="rp-online-item" @click="go('/chat')">
+            <el-avatar :src="f.avatarUrl" :size="28" shape="square">{{ f.nickname?.charAt(0) }}</el-avatar>
+            <span class="rp-online-name">{{ f.remark || f.nickname }}</span>
+            <span class="rp-online-dot"></span>
+          </div>
+        </div>
+        <div class="rp-empty" v-else>暂无好友在线</div>
+      </div>
+    </div>
+
     <!-- 个人资料弹窗 -->
     <el-dialog v-model="profileVisible" title="个人资料" width="520px" align-center :close-on-click-modal="true" destroy-on-close>
       <div class="settings-dialog-body">
@@ -312,6 +332,24 @@ const showAnnounceFloat = (content) => {
   announceTimer = setTimeout(() => { announcePopup.value = '' }, 30000)
 }
 
+const onlineFriends = ref([])
+const latestAnn = ref('')
+let onlineTimer = null
+
+const fetchOnlineFriends = async () => {
+  try {
+    const res = await request.get('/friends/online')
+    if (res.code === 0) onlineFriends.value = res.data
+  } catch(e) {}
+}
+
+const fetchLatestAnn = async () => {
+  try {
+    const res = await request.get('/admin/announcements')
+    if (res.code === 0 && res.data.length) latestAnn.value = res.data[0].content
+  } catch(e) {}
+}
+
 const announceList = ref([])
 const announceCount = ref(0)
 const fetchAnnounceUnread = async () => {
@@ -500,6 +538,9 @@ onMounted(() => {
   fetchMomentNotices()
   fetchSquareNotices()
   fetchAnnounceUnread()
+  fetchOnlineFriends()
+  fetchLatestAnn()
+  onlineTimer = setInterval(fetchOnlineFriends, 30000)
   connect()
   onMessage((msg) => {
     if (msg.action === 'event') {
@@ -688,6 +729,24 @@ onMounted(() => {
 .ann-pop-content { font-size:14px; color:#333; line-height:1.5; }
 .ann-pop-time { font-size:12px; color:#999; margin-top:4px; }
 .ann-pop-empty { text-align:center; color:#ccc; padding:20px; font-size:13px; }
+
+/* 右侧信息栏 */
+.right-panel { width:180px; min-width:180px; border-left:1px solid #e8e8e8; padding:16px 12px; display:flex; flex-direction:column; gap:16px; overflow-y:auto; }
+.rp-title { font-size:13px; font-weight:600; color:#666; margin-bottom:8px; }
+.rp-ann { font-size:12px; color:#8c6a00; background:#fffbe6; padding:8px 10px; border-radius:6px; line-height:1.6; }
+.rp-empty { font-size:12px; color:#ccc; padding:10px; text-align:center; }
+.rp-online-list { display:flex; flex-direction:column; gap:6px; }
+.rp-online-item { display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px; border-radius:6px; }
+.rp-online-item:hover { background:#f5f5f5; }
+.rp-online-name { font-size:12px; color:#333; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rp-online-dot { width:6px; height:6px; border-radius:50%; background:#07c160; flex-shrink:0; }
+
+html.dark .right-panel { border-color:#2a2a2a; }
+html.dark .rp-online-item:hover { background:rgba(255,255,255,0.04); }
+html.dark .rp-online-name { color:#ccc; }
+html.dark .rp-title { color:#999; }
+html.dark .rp-ann { background:#3d3520; color:#e6c85a; }
+html.dark .rp-empty { color:#555; }
 </style>
 
 <style>

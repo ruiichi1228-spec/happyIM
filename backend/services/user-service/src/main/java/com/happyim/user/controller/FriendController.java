@@ -3,16 +3,21 @@ package com.happyim.user.controller;
 import com.happyim.common.util.ApiResponse;
 import com.happyim.common.util.BizException;
 import com.happyim.common.util.ErrorCode;
+import com.happyim.common.mapper.FriendMapper;
+import com.happyim.common.mapper.UserMapper;
 import com.happyim.common.model.dto.*;
+import com.happyim.common.model.entity.Friend;
+import com.happyim.common.model.entity.User;
 import com.happyim.common.security.JwtUtil;
 import com.happyim.common.security.LoginRequired;
 import com.happyim.user.service.FriendService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -20,10 +25,18 @@ public class FriendController {
 
     private final FriendService friendService;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final FriendMapper friendMapper;
+    private final UserMapper userMapper;
 
-    public FriendController(FriendService friendService, JwtUtil jwtUtil) {
+    public FriendController(FriendService friendService, JwtUtil jwtUtil,
+                            RedisTemplate<String, String> redisTemplate,
+                            FriendMapper friendMapper, UserMapper userMapper) {
         this.friendService = friendService;
         this.jwtUtil = jwtUtil;
+        this.redisTemplate = redisTemplate;
+        this.friendMapper = friendMapper;
+        this.userMapper = userMapper;
     }
 
     // ==================== 搜索用户 ====================
@@ -149,6 +162,36 @@ public class FriendController {
     public ApiResponse<List<FriendVO>> getBlacklist(HttpServletRequest request) {
         Long userId = getUserId(request);
         return ApiResponse.success(friendService.getBlacklist(userId));
+    }
+
+    // 在线好友
+    @GetMapping("/friends/online")
+    @LoginRequired
+    public ApiResponse<List<Map<String, Object>>> getOnlineFriends(HttpServletRequest request) {
+        Long userId = getUserId(request);
+        Set<String> onlineKeys = redisTemplate.keys("online:user:*");
+        Set<Long> onlineIds = new HashSet<>();
+        if (onlineKeys != null) {
+            for (String key : onlineKeys) {
+                try { onlineIds.add(Long.parseLong(key.substring("online:user:".length()))); } catch(Exception e) {}
+            }
+        }
+        List<Friend> friends = friendMapper.findByUserId(userId);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Friend f : friends) {
+            if (onlineIds.contains(f.getFriendId())) {
+                User u = userMapper.findById(f.getFriendId());
+                if (u != null) {
+                    Map<String, Object> item = new LinkedHashMap<>();
+                    item.put("userId", u.getId());
+                    item.put("nickname", u.getNickname());
+                    item.put("avatarUrl", u.getAvatarUrl() != null && !u.getAvatarUrl().startsWith("http") ? "/api/files/avatar/" + u.getId() : u.getAvatarUrl());
+                    item.put("remark", f.getRemark());
+                    result.add(item);
+                }
+            }
+        }
+        return ApiResponse.success(result);
     }
 
     private Long getUserId(HttpServletRequest request) {
