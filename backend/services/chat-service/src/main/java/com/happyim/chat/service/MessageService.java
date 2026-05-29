@@ -280,8 +280,15 @@ public class MessageService {
                 item.put("peerName", String.valueOf(hash.getOrDefault("peer_name", "")));
                 item.put("peerAvatar", String.valueOf(hash.getOrDefault("peer_avatar", "")));
                 int type = Integer.parseInt(String.valueOf(hash.getOrDefault("type", "0")));
+                int mc = Integer.parseInt(String.valueOf(hash.getOrDefault("member_count", "-1")));
+                if (type == 1 && mc < 0) {
+                    try {
+                        GroupChat g = groupChatMapper.findById(Long.parseLong(convId.substring(2)));
+                        mc = g != null ? g.getMemberCount() : 0;
+                    } catch (Exception ignored) { mc = 0; }
+                }
                 item.put("type", type);
-                item.put("memberCount", Integer.valueOf(String.valueOf(hash.getOrDefault("member_count", "0"))));
+                item.put("memberCount", mc);
                 item.put("lastMsgContent", String.valueOf(hash.getOrDefault("last_msg_content", "")));
                 item.put("lastMsgType", "");
                 item.put("lastMsgTime", hash.getOrDefault("last_msg_time", "0"));
