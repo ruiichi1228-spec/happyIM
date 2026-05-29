@@ -235,6 +235,18 @@ public class MessageService {
         return list;
     }
 
+    public void pinConversation(Long userId, String conversationId, boolean pinned) {
+        String hashKey = SESSION_PREFIX + userId + ":" + conversationId;
+        redisTemplate.opsForHash().put(hashKey, "pinned", pinned ? "1" : "0");
+        if (pinned) {
+            redisTemplate.opsForZSet().add(SESSION_ZSET + userId, conversationId, 9999999999999.0);
+        } else {
+            Object lastTime = redisTemplate.opsForHash().get(hashKey, "last_msg_time");
+            double score = lastTime != null ? Double.parseDouble(String.valueOf(lastTime)) : System.currentTimeMillis();
+            redisTemplate.opsForZSet().add(SESSION_ZSET + userId, conversationId, score);
+        }
+    }
+
     // ==================== 已读 ====================
 
     public void markRead(Long userId, String conversationId) {
