@@ -116,9 +116,20 @@
 
 ---
 
-## 10. 后续待做
+---
+
+## 10. Prometheus + Grafana 监控 ✅
+
+**修复**: 
+- 所有服务添加 `management.endpoints.web.exposure.include=health,info,prometheus`
+- Prometheus 已配置抓取所有 5 个服务（user/chat/content/chat-ws/gateway）
+- Grafana 访问 `http://localhost:3000`（admin/admin）
+- 已确认 user-service + gateway 指标正常采集
+
+---
+
+## 后续待做
 
 - [ ] RestTemplate → Feign（需 ApiResponse 适配层）
 - [ ] MyBatis-Plus 替换（用户暂缓）
-- [ ] Prometheus + Grafana 监控大盘
 - [ ] JMeter 压测出报告
