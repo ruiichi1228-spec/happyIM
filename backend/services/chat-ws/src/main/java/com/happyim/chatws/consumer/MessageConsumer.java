@@ -99,9 +99,14 @@ public class MessageConsumer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void pushToUser(Long userId, String convId, String messageId,
                              long fromUserId, Map<String, Object> msg) {
         if (!wsHandler.isOnline(userId)) return;
+
+        // 检查是否被 @
+        List<Integer> mentions = (List<Integer>) msg.get("mentions");
+        boolean isMentioned = mentions != null && mentions.contains(userId.intValue());
 
         String content = (String) msg.get("content");
         String viewing = wsHandler.getCurrentConversation(userId);
@@ -117,6 +122,7 @@ public class MessageConsumer {
             data.put("preview", content != null && content.length() > 30 ? content.substring(0, 30) : content);
             data.put("senderName", fromUserId > 0 ? getSenderName(fromUserId) : "系统");
             data.put("messageType", msg.get("messageType") != null ? msg.get("messageType").toString() : "text");
+            if (isMentioned) data.put("mention", true);
             wsHandler.pushNotification(userId, data);
         }
     }

@@ -111,7 +111,7 @@
                 <div v-if="msg.quoteMessageId" class="quote-banner" @click="scrollToMsg(msg.quoteMessageId)"><span class="quote-inline-name">{{ senderName(msg.quoteSenderId) }}</span> {{ quotePreview(msg) }}</div>
                 <!-- 文字 -->
                 <div v-if="msg.messageType === 'text'" class="bubble text-bubble">
-                  {{ msg.content }}
+                  <span v-html="highlightMentions(msg.content)"></span>
                   <span v-if="msg.status === 'sending'" class="msg-icon sending"><el-icon class="is-loading" :size="14"><Loading /></el-icon></span>
                   <span v-if="msg.status === 'failed'" class="msg-icon failed" @click="retrySend(msg)"><el-icon :size="14"><WarningFilled /></el-icon></span>
                 </div>
@@ -188,8 +188,18 @@
             <el-icon class="tool-icon" @click="locationPickerVisible = true"><Location /></el-icon>
             <input ref="imageInput" type="file" accept="image/*" hidden @change="onImageSelected" />
           </div>
+          <div v-if="activeSession?.type === 1 && mentionChips.length" class="mention-chips">
+            <el-tag v-for="uid in mentionChips" :key="uid" size="small" closable @close="removeMention(uid)" type="info">{{ getMemberName(uid) }}</el-tag>
+          </div>
+          <div v-if="showMentionPopup" class="mention-popup">
+            <div v-for="m in mentionFiltered" :key="m.userId" class="mention-item" @click="selectMention(m)">
+              {{ m.nickname || m.username }}
+            </div>
+            <div v-if="!mentionFiltered.length" class="mention-empty">无匹配成员</div>
+          </div>
           <el-input v-model="msgText" type="textarea" :rows="4" placeholder="" resize="none"
-            @keydown.enter.exact.prevent="sendText" />
+            @keydown.enter.exact.prevent="sendText"
+            @input="onMsgInput" />
           <div class="send-row">
             <el-button type="primary" size="small" @click="sendText">发 送</el-button>
           </div>
@@ -577,6 +587,42 @@ const searchText = ref(''), sessions = ref([]), activeSession = ref(null)
 const msgText = ref(''), messages = ref([]), msgListRef = ref(null)
 const showEmoji = ref(false), imageInput = ref(null), fileInputRef = ref(null)
 const cardPickerVisible = ref(false), cardSearch = ref(''), locationPickerVisible = ref(false)
+// @ 提及功能
+const showMentionPopup = ref(false), mentionSearch = ref(''), mentionChips = ref([])
+const mentionFiltered = computed(() => {
+  const kw = mentionSearch.value.toLowerCase()
+  const members = groupMembers.value || []
+  return members.filter(m => m.userId !== myUserId.value && ((m.nickname||'').toLowerCase().includes(kw) || (m.username||'').toLowerCase().includes(kw)))
+})
+const getMemberName = (uid) => { const m = (groupMembers.value||[]).find(x => x.userId === uid); return m ? (m.groupNickname || m.nickname || m.username) : '' }
+const onMsgInput = () => {
+  const v = msgText.value
+  const idx = v.lastIndexOf('@')
+  if (idx >= 0 && activeSession.value?.type === 1) {
+    const after = v.substring(idx + 1)
+    if (!after.includes(' ')) {
+      mentionSearch.value = after
+      showMentionPopup.value = true
+      return
+    }
+  }
+  showMentionPopup.value = false
+}
+const selectMention = (m) => {
+  const v = msgText.value
+  const idx = v.lastIndexOf('@')
+  const name = m.groupNickname || m.nickname || m.username
+  msgText.value = v.substring(0, idx) + '@' + name + ' '
+  if (!mentionChips.value.includes(m.userId)) mentionChips.value.push(m.userId)
+  showMentionPopup.value = false
+}
+const removeMention = (uid) => { mentionChips.value = mentionChips.value.filter(id => id !== uid) }
+const highlightMentions = (content) => {
+  if (!content) return ''
+  // 转义 HTML 然后高亮 @xxx
+  return content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/@(\S+)/g, '<span class="mention-highlight">@$1</span>')
+}
 const cardFiltered = computed(() => {
   if (!cardSearch.value) return friends.value
   const kw = cardSearch.value.toLowerCase()
@@ -738,14 +784,17 @@ const handleScroll = () => { const el = msgListRef.value; if (el && hasMore.valu
 const sendText = async () => {
   if (!msgText.value.trim() || !activeSession.value) return
   const content = msgText.value.trim(); msgText.value = ''
+  const mentions = [...mentionChips.value]; mentionChips.value = []
+  const extra = {}
+  if (mentions.length) extra.mentions = mentions
   const tempId = 'temp_' + Date.now()
   const quotedMsg = quoting.value
-  const tempMsg = { messageId: tempId, fromUserId: myUserId.value, content, messageType: 'text', createdAt: Date.now(), status: 'sending', quoteMessageId: quotedMsg?.messageId || null, quoteSenderId: quotedMsg?.fromUserId || null, quoteMessageType: quotedMsg?.messageType || 'text', quoteContent: quotedMsg?.content?.substring(0,60) || '' }
+  const tempMsg = { messageId: tempId, fromUserId: myUserId.value, content, messageType: 'text', createdAt: Date.now(), status: 'sending', mentions, quoteMessageId: quotedMsg?.messageId || null, quoteSenderId: quotedMsg?.fromUserId || null, quoteMessageType: quotedMsg?.messageType || 'text', quoteContent: quotedMsg?.content?.substring(0,60) || '' }
   messages.value.push(tempMsg)
   quoting.value = null
   nextTick(() => { if (msgListRef.value) msgListRef.value.scrollTop = msgListRef.value.scrollHeight })
   try {
-    const res = await request.post(`/conversations/${activeSession.value.conversationId}/messages`, { content, messageType: 'text', quoteMessageId: quotedMsg?.messageId || null })
+    const res = await request.post(`/conversations/${activeSession.value.conversationId}/messages`, { content, messageType: 'text', quoteMessageId: quotedMsg?.messageId || null, extra })
     const idx = messages.value.findIndex(m => m.messageId === tempId)
     if (res.code === 0 && idx >= 0) {
       messages.value[idx] = { ...tempMsg, messageId: res.data.messageId, createdAt: res.data.createdAt, status: 'sent', quoteMessageId: tempMsg.quoteMessageId, quoteSenderId: tempMsg.quoteSenderId, quoteMessageType: tempMsg.quoteMessageType, quoteContent: tempMsg.quoteContent }
@@ -1514,4 +1563,12 @@ onMounted(() => {
 .group-readonly { font-size:13px; }
 .read-item { margin-bottom:6px; }
 .read-value { color:#333; word-break:break-all; }
+
+/* @ 提及 */
+.mention-highlight { color:#1890ff; font-weight:500; }
+.mention-chips { display:flex; gap:4px; flex-wrap:wrap; padding:4px 8px; }
+.mention-popup { position:absolute; bottom:100%; left:8px; background:#fff; border:1px solid #e2e2e2; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-height:200px; overflow-y:auto; width:200px; z-index:100; }
+.mention-item { padding:8px 12px; cursor:pointer; font-size:13px; }
+.mention-item:hover { background:#f0f0f0; }
+.mention-empty { padding:8px 12px; color:#ccc; font-size:12px; text-align:center; }
 </style>

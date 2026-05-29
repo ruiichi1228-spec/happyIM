@@ -101,6 +101,7 @@ public class MessageService {
             if (extra.containsKey("fileName")) msgDoc.put("fileName", extra.get("fileName"));
             if (extra.containsKey("fileSize")) msgDoc.put("fileSize", extra.get("fileSize"));
             if (extra.containsKey("duration")) msgDoc.put("duration", extra.get("duration"));
+            if (extra.containsKey("mentions")) msgDoc.put("mentions", extra.get("mentions"));
             if (extra.containsKey("quoteMessageId")) {
                 String qid = (String) extra.get("quoteMessageId");
                 msgDoc.put("quoteMessageId", qid);
