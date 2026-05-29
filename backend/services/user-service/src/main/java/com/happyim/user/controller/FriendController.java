@@ -85,6 +85,12 @@ public class FriendController {
         return ApiResponse.success(friendService.getFriends(userId));
     }
 
+    // 内部调用：根据 userId 查好友（服务间通信）
+    @GetMapping("/users/{userId}/friends")
+    public ApiResponse<List<FriendVO>> getUserFriends(@PathVariable Long userId) {
+        return ApiResponse.success(friendService.getFriends(userId));
+    }
+
     // ==================== 删除好友 ====================
 
     @DeleteMapping("/friends/{friendId}")

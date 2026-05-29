@@ -16,6 +16,9 @@ spring:
       config:
         server-addr: localhost:8848
   data:
+    redis:
+      host: localhost
+      port: 6380
     mongodb:
       uri: mongodb://localhost:27019/happyim
   rabbitmq:

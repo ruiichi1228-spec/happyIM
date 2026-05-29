@@ -59,7 +59,7 @@ public class UserServiceClient {
     public List<Map<String, Object>> getFriends(Long userId) {
         try {
             Map<String, Object> res = restTemplate.getForObject(
-                    USER_SERVICE + "/friends?userId=" + userId, Map.class);
+                    USER_SERVICE + "/users/" + userId + "/friends", Map.class);
             if (res != null && res.get("code") instanceof Integer code && code == 0) {
                 return (List<Map<String, Object>>) res.get("data");
             }
