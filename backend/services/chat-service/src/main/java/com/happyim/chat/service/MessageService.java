@@ -262,15 +262,15 @@ public class MessageService {
             list.add(item);
         }
 
-        // 补充无消息但已初始化的会话
+        // 从 ZSET 获取已初始化的会话（替代 KEYS 全表扫描）
         Set<String> feedConvIds = list.stream().map(m -> (String) m.get("conversationId")).collect(java.util.stream.Collectors.toSet());
-        Set<String> hashKeys = redisTemplate.keys(SESSION_PREFIX + userId + ":*");
-        if (hashKeys != null) {
-            for (String key : hashKeys) {
-                String convId = key.substring((SESSION_PREFIX + userId + ":").length());
+        Set<String> zsetConvs = redisTemplate.opsForZSet().reverseRange(SESSION_ZSET + userId, 0, -1);
+        if (zsetConvs != null) {
+            for (String convId : zsetConvs) {
                 if (feedConvIds.contains(convId)) continue;
 
-                Map<Object, Object> hash = redisTemplate.opsForHash().entries(key);
+                String hashKey = SESSION_PREFIX + userId + ":" + convId;
+                Map<Object, Object> hash = redisTemplate.opsForHash().entries(hashKey);
                 if (hash.isEmpty()) continue;
 
                 Map<String, Object> item = new LinkedHashMap<>();
