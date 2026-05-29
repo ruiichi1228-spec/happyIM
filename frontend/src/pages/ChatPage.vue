@@ -704,11 +704,16 @@ const loadMessages = async () => {
       // 后端 $in 查询不保证顺序，前端强制按 createdAt 升序排列
       const sorted = [...list].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
       // 保存滚动位置，防止历史消息加载导致跳动
-      const prevHeight = msgListRef.value?.scrollHeight || 0
+      const el = msgListRef.value
+      const prevHeight = el?.scrollHeight || 0
+      const prevTop = el?.scrollTop || 0
       messages.value = [...sorted, ...messages.value]
       hasMore.value = res.data.hasMore
-      if (!firstLoad) {
-        nextTick(() => { if (msgListRef.value) msgListRef.value.scrollTop = msgListRef.value.scrollHeight - prevHeight })
+      if (!firstLoad && el) {
+        // requestAnimationFrame 等待浏览器完成布局后再设置 scrollTop，确保图片 placeholder 高度已被计入
+        requestAnimationFrame(() => {
+          el.scrollTop = el.scrollHeight - prevHeight + prevTop
+        })
       }
       // 批量加载发送者信息到缓存
       const uids = [...new Set(sorted.map(m => m.fromUserId).filter(Boolean))]
