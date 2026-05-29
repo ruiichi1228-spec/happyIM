@@ -198,8 +198,7 @@
             <div v-if="!mentionFiltered.length" class="mention-empty">无匹配成员</div>
           </div>
           <el-input v-model="msgText" type="textarea" :rows="4" placeholder="" resize="none"
-            @keydown.enter.exact.prevent="sendText"
-            @input="onMsgInput" />
+            @keydown.enter.exact.prevent="sendText" />
           <div class="send-row">
             <el-button type="primary" size="small" @click="sendText">发 送</el-button>
           </div>
@@ -595,19 +594,6 @@ const mentionFiltered = computed(() => {
   return members.filter(m => m.userId !== myUserId.value && ((m.nickname||'').toLowerCase().includes(kw) || (m.username||'').toLowerCase().includes(kw)))
 })
 const getMemberName = (uid) => { const m = (groupMembers.value||[]).find(x => x.userId === uid); return m ? (m.groupNickname || m.nickname || m.username) : '' }
-const onMsgInput = () => {
-  const v = msgText.value
-  const idx = v.lastIndexOf('@')
-  if (idx >= 0 && activeSession.value?.type === 1) {
-    const after = v.substring(idx + 1)
-    if (!after.includes(' ')) {
-      mentionSearch.value = after
-      showMentionPopup.value = true
-      return
-    }
-  }
-  showMentionPopup.value = false
-}
 const selectMention = (m) => {
   const v = msgText.value
   const idx = v.lastIndexOf('@')
@@ -617,6 +603,20 @@ const selectMention = (m) => {
   showMentionPopup.value = false
 }
 const removeMention = (uid) => { mentionChips.value = mentionChips.value.filter(id => id !== uid) }
+// 监听输入检测 @
+watch(msgText, (val) => {
+  if (!activeSession.value || activeSession.value.type !== 1) { showMentionPopup.value = false; return }
+  const idx = (val || '').lastIndexOf('@')
+  if (idx >= 0) {
+    const after = (val || '').substring(idx + 1)
+    if (!after.includes(' ') && !after.includes('\n')) {
+      mentionSearch.value = after
+      showMentionPopup.value = true
+      return
+    }
+  }
+  showMentionPopup.value = false
+})
 const highlightMentions = (content) => {
   if (!content) return ''
   // 转义 HTML 然后高亮 @xxx
