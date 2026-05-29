@@ -63,8 +63,11 @@ request.interceptors.response.use(
           }
         } catch (refreshError) {
           refreshPromise = null
-          clearAuth()
-          router.push('/login')
+          // 只有 refresh token 真的过期(401)才登出，503等临时错误不踢
+          if (refreshError.response?.status === 401) {
+            clearAuth()
+            router.push('/login')
+          }
           return Promise.reject(refreshError)
         }
       }
