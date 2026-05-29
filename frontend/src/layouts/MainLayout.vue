@@ -444,7 +444,7 @@ onMounted(() => {
       else if (type === 'moment_notify') { fetchMomentNotices(); playMomentSound() }
       else if (type === 'square_notify') { fetchSquareNotices(); playSquareSound() }
     }
-    if (msg.action === 'new_message') playMsgSound()
+    if (msg.action === 'new_message') { playMsgSound(); totalUnread.value++ }
   })
 })
 </script>
