@@ -239,7 +239,7 @@ import { useWebSocket } from '@/utils/websocket'
 import { toggleMute, isMuted, playMsgSound, playFriendSound, playMomentSound, playSquareSound } from '@/utils/sound'
 import { useTheme } from '@/utils/theme'
 const { isDark, toggle: toggleDark } = useTheme()
-const { connect, onMessage, connected: wsConnected } = useWebSocket()
+const { connect, send, onMessage, connected: wsConnected } = useWebSocket()
 const soundMuted = ref(isMuted())
 const toggleMuteSound = () => { soundMuted.value = toggleMute() }
 import axios from 'axios'
@@ -269,6 +269,13 @@ const momentNoticeCount = ref(0)
 const squareNoticeCount = ref(0)
 const fetchMomentNotices = async () => { try { const res = await request.get('/moments/summary'); if (res.code===0) momentNoticeCount.value = res.data.momentUnread || 0 } catch(e) {} }
 const fetchSquareNotices = async () => { try { const res = await request.get('/square/summary'); if (res.code===0) squareNoticeCount.value = res.data.squareUnread || 0 } catch(e) {} }
+// 离开聊天页时清除 WS 当前会话，确保消息通知正常
+watch(() => route.path, (path) => {
+  if (!path.startsWith('/chat')) {
+    send({ action: 'leave_conversation', data: {} })
+  }
+})
+
 const totalUnread = ref(0)
 const updateTotalUnread = (val) => { totalUnread.value = val }
 provide('updateUnread', updateTotalUnread)
