@@ -6,8 +6,6 @@ spring:
 
   cloud:
     nacos:
-      config:
-          enabled: false
 
   data:
     redis:
