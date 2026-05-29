@@ -122,12 +122,15 @@ public class MessageService {
             writePrivateFeeds(fromUserId, conversationId, messageId, now);
             String[] parts = conversationId.substring(2).split("_");
             long a = Long.parseLong(parts[0]), b = Long.parseLong(parts[1]);
+            ensureSessionInit(a, conversationId, convType);
             updateSessionLastMsg(a, conversationId, content, messageType, now);
+            ensureSessionInit(b, conversationId, convType);
             updateSessionLastMsg(b, conversationId, content, messageType, now);
         } else {
             writeGroupFeeds(fromUserId, conversationId, messageId, now);
             long groupId = Long.parseLong(conversationId.substring(2));
             for (GroupMember m : groupMemberMapper.findByGroupId(groupId)) {
+                ensureSessionInit(m.getUserId(), conversationId, convType);
                 updateSessionLastMsg(m.getUserId(), conversationId, content, messageType, now);
             }
         }
@@ -307,6 +310,7 @@ public class MessageService {
         if (convType == 1) {
             long groupId = Long.parseLong(conversationId.substring(2));
             for (GroupMember m : groupMemberMapper.findByGroupId(groupId)) {
+                ensureSessionInit(m.getUserId(), conversationId, convType);
                 insertFeed(m.getUserId(), conversationId, messageId, now);
                 updateSessionLastMsg(m.getUserId(), conversationId, content, msgType, now);
                 incrementUnread(m.getUserId(), conversationId);
@@ -316,7 +320,9 @@ public class MessageService {
             long uid1 = Long.parseLong(parts[0]), uid2 = Long.parseLong(parts[1]);
             insertFeed(uid1, conversationId, messageId, now);
             insertFeed(uid2, conversationId, messageId, now);
+            ensureSessionInit(uid1, conversationId, convType);
             updateSessionLastMsg(uid1, conversationId, content, msgType, now);
+            ensureSessionInit(uid2, conversationId, convType);
             incrementUnread(uid1, conversationId);
             updateSessionLastMsg(uid2, conversationId, content, msgType, now);
             incrementUnread(uid2, conversationId);
@@ -457,6 +463,21 @@ public class MessageService {
     private void incrementUnread(Long userId, String convId) {
         String hashKey = SESSION_PREFIX + userId + ":" + convId;
         redisTemplate.opsForHash().increment(hashKey, "unread_count", 1);
+    }
+
+    private void ensureSessionInit(Long userId, String convId, int convType) {
+        String hashKey = SESSION_PREFIX + userId + ":" + convId;
+        if (redisTemplate.opsForHash().hasKey(hashKey, "peer_id")) return;
+        Map<String, Object> item = new LinkedHashMap<>();
+        if (convType == 0) fillPrivateSession(userId, convId, item);
+        else fillGroupSession(convId, item);
+        Map<String, String> redisHash = new HashMap<>();
+        redisHash.put("type", String.valueOf(convType));
+        redisHash.put("peer_id", String.valueOf(item.getOrDefault("peerId", "")));
+        redisHash.put("peer_name", String.valueOf(item.getOrDefault("peerName", "")));
+        redisHash.put("peer_avatar", String.valueOf(item.getOrDefault("peerAvatar", "")));
+        redisHash.put("member_count", String.valueOf(item.getOrDefault("memberCount", "0")));
+        redisTemplate.opsForHash().putAll(hashKey, redisHash);
     }
 
     private void updateSessionLastMsg(Long userId, String convId, String content, String msgType, long now) {
