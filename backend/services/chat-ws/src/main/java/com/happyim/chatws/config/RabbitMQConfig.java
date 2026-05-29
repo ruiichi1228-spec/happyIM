@@ -54,6 +54,11 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding wsAnnounceBinding(Queue wsQueue, TopicExchange chatExchange) {
+        return BindingBuilder.bind(wsQueue).to(chatExchange).with("notify.announce");
+    }
+
+    @Bean
     public Jackson2JsonMessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }

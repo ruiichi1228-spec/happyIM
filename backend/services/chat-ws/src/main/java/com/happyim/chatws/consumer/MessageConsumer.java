@@ -53,6 +53,18 @@ public class MessageConsumer {
     }
 
     private void handleEvent(String type, Map<String, Object> msg) {
+        // 公告：推送给所有在线用户
+        if ("announcement".equals(type)) {
+            String content = (String) msg.get("content");
+            for (Long uid : wsHandler.getOnlineUserIds()) {
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("type", "announcement");
+                data.put("content", content);
+                wsHandler.pushEvent(uid, data);
+            }
+            return;
+        }
+
         Long targetUserId = toLong(msg.get("targetUserId"));
         if (targetUserId == null || !wsHandler.isOnline(targetUserId)) return;
 

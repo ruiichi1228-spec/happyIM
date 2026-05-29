@@ -11,6 +11,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -107,6 +108,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     public boolean isOnline(Long userId) {
         return sessions.containsKey(userId);
+    }
+
+    public Set<Long> getOnlineUserIds() {
+        return new java.util.HashSet<>(sessions.keySet());
     }
 
     public void pushMessage(Long userId, Map<String, Object> payload) {

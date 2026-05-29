@@ -164,5 +164,13 @@ CREATE TABLE IF NOT EXISTS `sensitive_word` (
     UNIQUE KEY `uk_word` (`word`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='敏感词库';
 
+-- 系统公告
+CREATE TABLE IF NOT EXISTS `system_announcement` (
+    `id`           BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `content`      VARCHAR(1000) NOT NULL COMMENT '公告内容',
+    `created_by`   BIGINT NOT NULL COMMENT '发布人(admin_user.id)',
+    `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统公告';
+
 -- 默认管理员账号: admin / admin123 (BCrypt)
 -- INSERT IGNORE INTO admin_user (username, password, nickname) VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5Eh', '系统管理员');

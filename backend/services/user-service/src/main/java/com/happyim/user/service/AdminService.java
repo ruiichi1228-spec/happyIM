@@ -32,6 +32,7 @@ public class AdminService {
     private final GroupChatMapper groupChatMapper;
     private final GroupMemberMapper groupMemberMapper;
     private final SensitiveWordMapper sensitiveWordMapper;
+    private final SystemAnnouncementMapper announcementMapper;
     private final JwtUtil jwtUtil;
     private final RabbitTemplate rabbitTemplate;
     private final RedisTemplate<String, String> redisTemplate;
@@ -41,6 +42,7 @@ public class AdminService {
     public AdminService(AdminUserMapper adminUserMapper, UserMapper userMapper,
                         GroupChatMapper groupChatMapper, GroupMemberMapper groupMemberMapper,
                         SensitiveWordMapper sensitiveWordMapper,
+                        SystemAnnouncementMapper announcementMapper,
                         JwtUtil jwtUtil, RabbitTemplate rabbitTemplate,
                         RedisTemplate<String, String> redisTemplate,
                         MongoTemplate mongoTemplate) {
@@ -49,6 +51,7 @@ public class AdminService {
         this.groupChatMapper = groupChatMapper;
         this.groupMemberMapper = groupMemberMapper;
         this.sensitiveWordMapper = sensitiveWordMapper;
+        this.announcementMapper = announcementMapper;
         this.jwtUtil = jwtUtil;
         this.rabbitTemplate = rabbitTemplate;
         this.redisTemplate = redisTemplate;
@@ -298,6 +301,31 @@ public class AdminService {
         if (bytes < 1048576) return String.format("%.1f KB", bytes / 1024.0);
         if (bytes < 1073741824) return String.format("%.1f MB", bytes / 1048576.0);
         return String.format("%.2f GB", bytes / 1073741824.0);
+    }
+
+    // ==================== 系统公告 ====================
+
+    public List<SystemAnnouncement> listAnnouncements() {
+        return announcementMapper.findAll();
+    }
+
+    public void publishAnnouncement(String content, Long adminId) {
+        SystemAnnouncement ann = new SystemAnnouncement();
+        ann.setContent(content);
+        ann.setCreatedBy(adminId);
+        announcementMapper.insert(ann);
+
+        try {
+            Map<String, Object> event = Map.of("type", "announcement", "content", content);
+            rabbitTemplate.convertAndSend("happyim.exchange", "notify.announce", event);
+        } catch (Exception e) {
+            log.warn("公告MQ推送失败: {}", e.getMessage());
+        }
+        log.info("管理员发布公告: {}", content);
+    }
+
+    public void deleteAnnouncement(Long id) {
+        announcementMapper.deleteById(id);
     }
 
     // ==================== 初始化 ====================

@@ -108,6 +108,29 @@ public class AdminController {
         return ApiResponse.message("success");
     }
 
+    // ==================== 系统公告 ====================
+
+    @AdminRequired
+    @GetMapping("/announcements")
+    public ApiResponse<?> listAnnouncements() {
+        return ApiResponse.success(adminService.listAnnouncements());
+    }
+
+    @AdminRequired
+    @PostMapping("/announcements")
+    public ApiResponse<?> publishAnnouncement(@RequestBody Map<String, String> body, HttpServletRequest request) {
+        Long adminId = (Long) request.getAttribute("adminId");
+        adminService.publishAnnouncement(body.get("content"), adminId != null ? adminId : 0L);
+        return ApiResponse.message("公告已发送");
+    }
+
+    @AdminRequired
+    @DeleteMapping("/announcements/{id}")
+    public ApiResponse<?> deleteAnnouncement(@PathVariable Long id) {
+        adminService.deleteAnnouncement(id);
+        return ApiResponse.message("success");
+    }
+
     // ==================== 文件管理 ====================
 
     @AdminRequired

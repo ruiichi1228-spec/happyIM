@@ -451,6 +451,9 @@ onMounted(() => {
       else if (type === 'moment_notify') { fetchMomentNotices(); playMomentSound() }
       else if (type === 'square_notify') { fetchSquareNotices(); playSquareSound() }
     }
+    if (msg.action === 'event' && msg.data?.type === 'announcement') {
+      ElMessage({ message: '系统公告：' + msg.data.content, type: 'warning', duration: 8000, showClose: true })
+    }
     if (msg.action === 'new_message') { playMsgSound(); totalUnread.value++ }
   })
 })

@@ -183,6 +183,25 @@
             <el-pagination background layout="prev, pager, next" :total="fileTotal" :page-size="filePageSize" v-model:current-page="filePage" @current-change="loadFiles" />
           </div>
         </el-tab-pane>
+        <!-- 系统公告 -->
+        <el-tab-pane label="系统公告" name="announcements">
+          <div class="toolbar">
+            <el-input v-model="annContent" type="textarea" :rows="3" placeholder="输入公告内容..." style="width:100%" />
+          </div>
+          <div style="margin-top:8px">
+            <el-button type="primary" @click="publishAnn">发布公告</el-button>
+          </div>
+          <el-table :data="announcements" v-loading="annLoading" stripe style="margin-top:16px">
+            <el-table-column prop="id" label="ID" width="80" />
+            <el-table-column prop="content" label="内容" min-width="300" />
+            <el-table-column prop="createdTime" label="发布时间" width="170" />
+            <el-table-column label="操作" width="80">
+              <template #default="{ row }">
+                <el-button size="small" type="danger" @click="deleteAnn(row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
       </el-tabs>
     </div>
 
@@ -414,6 +433,33 @@ const deleteFile = async (row) => {
   } catch (e) { /* */ }
 }
 
+// ==================== 公告 ====================
+const announcements = ref([]), annLoading = ref(false), annContent = ref('')
+
+const loadAnnouncements = async () => {
+  annLoading.value = true
+  try {
+    const res = await adminAxios.get('/api/admin/announcements')
+    if (res.data.code === 0) announcements.value = res.data.data
+  } catch (e) { /* */ } finally { annLoading.value = false }
+}
+
+const publishAnn = async () => {
+  if (!annContent.value.trim()) return
+  try {
+    const res = await adminAxios.post('/api/admin/announcements', { content: annContent.value.trim() })
+    if (res.data.code === 0) { annContent.value = ''; loadAnnouncements(); ElMessage.success('公告已发送') }
+  } catch (e) { ElMessage.error('发送失败') }
+}
+
+const deleteAnn = async (row) => {
+  try {
+    await ElMessageBox.confirm('确定删除该公告？', '确认', { type: 'warning' })
+    await adminAxios.delete(`/api/admin/announcements/${row.id}`)
+    loadAnnouncements(); ElMessage.success('已删除')
+  } catch (e) { /* */ }
+}
+
 // ==================== 初始化 ====================
 onMounted(() => {
   const info = localStorage.getItem('admin_info')
@@ -425,6 +471,7 @@ onMounted(() => {
   loadWords()
   loadFiles()
   loadFileStats()
+  loadAnnouncements()
 })
 </script>
 
