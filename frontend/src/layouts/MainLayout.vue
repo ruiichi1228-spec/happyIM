@@ -780,7 +780,8 @@ html.dark .el-tag { background:rgba(255,255,255,0.08) !important; color:var(--te
 html.dark .el-tag--success { background:rgba(7,193,96,0.15) !important; color:#07c160 !important; }
 html.dark .el-progress__text { color:var(--text-dim) !important; }
 html.dark .el-avatar { background:rgba(255,255,255,0.08) !important; color:var(--text) !important; }
-html.dark .el-badge__content { background:#fa5151 !important; color:#fff !important; }
+.el-badge__content { border: none !important; }
+html.dark .el-badge__content { background:#fa5151 !important; color:#fff !important; border: none !important; }
 /* 全部输入框 */
 html.dark input:not([type=file]), html.dark textarea, html.dark .el-input__wrapper,
 html.dark .el-textarea__inner, html.dark .el-input__inner,
