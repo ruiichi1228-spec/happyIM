@@ -43,7 +43,7 @@
     <div class="chat-main">
       <template v-if="activeSession">
         <div class="chat-header">
-          <span class="chat-name">{{ activeSession.peerName }}<span v-if="activeSession.type == 1" class="chat-group-tag">群聊 ({{ groupInfo[+activeSession.peerId]?.memberCount || 0 }}人)</span></span>
+          <span class="chat-name">{{ activeSession.peerName }}<span v-if="activeSession.type == 1" class="chat-group-tag">群聊 ({{ groupMemberCount }}人)</span></span>
           <div class="header-actions">
             <el-icon class="more-icon" @click="historyVisible = true"><Clock /></el-icon>
             <el-icon class="more-icon" @click="drawerOpen = !drawerOpen"><MoreFilled /></el-icon>
@@ -572,7 +572,12 @@ import { ElMessage } from 'element-plus'
 
 const userCache = useUserCache()
 const groupCache = useGroupCache()
-const groupInfo = groupCache.groups  // 响应式对象，直接读
+const groupInfo = groupCache.groups
+const groupMemberCount = computed(() => {
+  if (!activeSession.value || activeSession.value.type !== 1) return 0
+  const gid = +activeSession.value.peerId
+  return groupInfo[gid]?.memberCount || 0
+})
 const myUserId = ref(0), myName = ref(''), myAvatar = ref('')
 const searchText = ref(''), sessions = ref([]), activeSession = ref(null)
 const msgText = ref(''), messages = ref([]), msgListRef = ref(null)
