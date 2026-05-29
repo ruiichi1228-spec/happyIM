@@ -731,7 +731,7 @@ const selectSession = async (s) => {
   send({action:'leave_conversation',data:{conversationId:activeSession.value?.conversationId||''}})
   activeSession.value = s; drawerOpen.value = false; messages.value = []; hasMore.value = true; msgText.value = ''; mentionChips.value = []; quoting.value = null
   if (s.type == 1) {
-    try { const res = await request.get(`/groups/${s.peerId}`); if (res.code===0) { groupDetail.value=res.data; groupMembers.value=res.data.members||[]; editGroup.value={name:res.data.name||'',notice:res.data.notice||'',description:res.data.description||'',allowInvite:res.data.allowInvite!==false}; userCache.setAll(res.data.members); const me = res.data.members?.find(m => m.userId === myUserId.value); myGroupNickname.value = me?.groupNickname || '' } } catch(e){}
+    try { const res = await request.get(`/groups/${s.peerId}`); if (res.code===0) { groupDetail.value=res.data; const gi = groupInfo[Number(s.peerId)]; if (gi) { groupDetail.value.name = gi.name; groupDetail.value.avatarUrl = gi.avatarUrl } groupMembers.value=res.data.members||[]; editGroup.value={name:gi?.name||res.data.name||'',notice:res.data.notice||'',description:res.data.description||'',allowInvite:res.data.allowInvite!==false}; userCache.setAll(res.data.members); const me = res.data.members?.find(m => m.userId === myUserId.value); myGroupNickname.value = me?.groupNickname || '' } } catch(e){}
   } else {
     try { const res = await request.get('/friends'); if (res.code===0) drawerFriend.value = res.data.find(f=>f.userId==s.peerId) } catch(e){}
   }
@@ -1185,7 +1185,7 @@ const saveGroupInfo = async () => {
   try {
     await request.put(`/groups/${activeSession.value.peerId}`, { name: editGroup.value.name, notice: editGroup.value.notice, description: editGroup.value.description, allowInvite: editGroup.value.allowInvite, avatarUrl: editGroup.value.avatarUrl })
     groupDetail.value = { ...groupDetail.value, ...editGroup.value }; activeSession.value.peerName = editGroup.value.name; activeSession.value.peerAvatar = editGroup.value.avatarUrl; fetchSessions()
-    try { const res = await request.get(`/groups/${activeSession.value.peerId}`); if (res.code === 0) { groupDetail.value = res.data; groupMembers.value = res.data.members||[]; activeSession.value.peerAvatar = res.data.avatarUrl; userCache.setAll(res.data.members) } } catch(e) {}
+    try { const res = await request.get(`/groups/${activeSession.value.peerId}`); if (res.code === 0) { groupDetail.value = res.data; const gid = Number(activeSession.value.peerId); const gi = groupInfo[gid]; if (gi) { groupDetail.value.name = gi.name; groupDetail.value.avatarUrl = gi.avatarUrl; activeSession.value.peerAvatar = gi.avatarUrl } groupMembers.value = res.data.members||[]; userCache.setAll(res.data.members) } } catch(e) {}
     ElMessage.success('已保存')
   } catch(e) { ElMessage.error('保存失败') } finally { savingGroup.value = false }
 }
