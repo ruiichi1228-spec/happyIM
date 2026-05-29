@@ -158,7 +158,6 @@ public class MessageController {
         private Integer duration;
         private String quoteMessageId;
         private List<Long> mentions;
-        private Map<String, Object> extra;
 
         public String getContent() { return content; }
         public void setContent(String content) { this.content = content; }
@@ -174,7 +173,5 @@ public class MessageController {
         public void setQuoteMessageId(String quoteMessageId) { this.quoteMessageId = quoteMessageId; }
         public List<Long> getMentions() { return mentions; }
         public void setMentions(List<Long> mentions) { this.mentions = mentions; }
-        public Map<String, Object> getExtra() { return extra; }
-        public void setExtra(Map<String, Object> extra) { this.extra = extra; }
     }
 }
