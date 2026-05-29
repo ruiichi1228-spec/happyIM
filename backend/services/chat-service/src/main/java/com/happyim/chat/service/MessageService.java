@@ -3,6 +3,7 @@ package com.happyim.chat.service;
 import com.happyim.common.util.BizException;
 import com.happyim.common.util.ErrorCode;
 import com.happyim.common.mapper.BlacklistMapper;
+import com.happyim.common.mapper.ConversationMapper;
 import com.happyim.common.mapper.FriendMapper;
 import com.happyim.common.mapper.GroupChatMapper;
 import com.happyim.common.mapper.GroupMemberMapper;
@@ -43,6 +44,7 @@ public class MessageService {
     private final GroupChatMapper groupChatMapper;
     private final GroupMemberMapper groupMemberMapper;
     private final UserMapper userMapper;
+    private final ConversationMapper conversationMapper;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${happyim.mq.exchange}")
@@ -55,7 +57,7 @@ public class MessageService {
                           MessageIdGenerator idGenerator, MessageFilterChain filterChain,
                           FriendMapper friendMapper, BlacklistMapper blacklistMapper,
                           GroupChatMapper groupChatMapper, GroupMemberMapper groupMemberMapper,
-                          UserMapper userMapper,
+                          UserMapper userMapper, ConversationMapper conversationMapper,
                           RedisTemplate<String, String> redisTemplate) {
         this.mongoTemplate = mongoTemplate;
         this.rabbitTemplate = rabbitTemplate;
@@ -66,6 +68,7 @@ public class MessageService {
         this.groupChatMapper = groupChatMapper;
         this.groupMemberMapper = groupMemberMapper;
         this.userMapper = userMapper;
+        this.conversationMapper = conversationMapper;
         this.redisTemplate = redisTemplate;
     }
 
@@ -362,9 +365,9 @@ public class MessageService {
     }
 
     public void deleteConversation(Long userId, String conversationId) {
-        mongoTemplate.remove(new Query(Criteria.where("userId").is(userId).and("conversationId").is(conversationId)), "message_feed");
         redisTemplate.delete(SESSION_PREFIX + userId + ":" + conversationId);
         redisTemplate.opsForZSet().remove(SESSION_ZSET + userId, conversationId);
+        conversationMapper.delete(conversationId);
         log.info("会话已删除: userId={}, convId={}", userId, conversationId);
     }
 

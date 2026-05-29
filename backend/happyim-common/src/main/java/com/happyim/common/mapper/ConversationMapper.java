@@ -8,4 +8,5 @@ import org.apache.ibatis.annotations.Param;
 public interface ConversationMapper {
     int insert(Conversation conv);
     Conversation findById(@Param("id") String id);
+    int delete(@Param("id") String id);
 }

@@ -17,4 +17,8 @@
         SELECT * FROM conversation WHERE id = #{id}
     </select>
 
+    <delete id="delete">
+        DELETE FROM conversation WHERE id = #{id}
+    </delete>
+
 </mapper>
