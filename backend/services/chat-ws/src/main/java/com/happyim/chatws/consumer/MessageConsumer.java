@@ -64,6 +64,12 @@ public class MessageConsumer {
             }
             return;
         }
+        if ("friend_online".equals(type)) {
+            for (Long uid : wsHandler.getOnlineUserIds()) {
+                wsHandler.pushEvent(uid, Map.of("type", "friend_online", "userId", msg.get("userId")));
+            }
+            return;
+        }
 
         Long targetUserId = toLong(msg.get("targetUserId"));
         if (targetUserId == null || !wsHandler.isOnline(targetUserId)) return;

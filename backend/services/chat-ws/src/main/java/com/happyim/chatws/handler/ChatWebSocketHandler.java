@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.happyim.common.security.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
@@ -23,11 +24,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     // 当前会话从 session.attributes(HashMap) 移到独立 ConcurrentHashMap，避免并发读写死循环
     private final ConcurrentHashMap<Long, String> currentConversations = new ConcurrentHashMap<>();
     private final RedisTemplate<String, String> redisTemplate;
+    private final RabbitTemplate rabbitTemplate;
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ChatWebSocketHandler(RedisTemplate<String, String> redisTemplate, JwtUtil jwtUtil) {
+    public ChatWebSocketHandler(RedisTemplate<String, String> redisTemplate,
+                                RabbitTemplate rabbitTemplate, JwtUtil jwtUtil) {
         this.redisTemplate = redisTemplate;
+        this.rabbitTemplate = rabbitTemplate;
         this.jwtUtil = jwtUtil;
     }
 
@@ -42,6 +46,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             redisTemplate.opsForValue().set("router:user:" + userId, "ws-1");
 
             log.info("WS 连接建立: userId={}", userId);
+            try { rabbitTemplate.convertAndSend("happyim.exchange", "notify.online", Map.of("type", "friend_online", "userId", userId)); } catch(Exception ignored) {}
         } catch (Exception e) {
             session.close(CloseStatus.BAD_DATA);
         }

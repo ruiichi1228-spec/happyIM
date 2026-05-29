@@ -54,6 +54,11 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding wsOnlineBinding(Queue wsQueue, TopicExchange chatExchange) {
+        return BindingBuilder.bind(wsQueue).to(chatExchange).with("notify.online");
+    }
+
+    @Bean
     public Binding wsAnnounceBinding(Queue wsQueue, TopicExchange chatExchange) {
         return BindingBuilder.bind(wsQueue).to(chatExchange).with("notify.announce");
     }

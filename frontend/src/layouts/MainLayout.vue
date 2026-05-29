@@ -548,6 +548,7 @@ onMounted(() => {
       if (type === 'friend_notify') { fetchPendingCount(); playFriendSound() }
       else if (type === 'moment_notify') { fetchMomentNotices(); playMomentSound() }
       else if (type === 'square_notify') { fetchSquareNotices(); playSquareSound() }
+      else if (type === 'friend_online') { fetchOnlineFriends() }
     }
     if (msg.action === 'event' && msg.data?.type === 'announcement') {
       fetchAnnounceUnread()
