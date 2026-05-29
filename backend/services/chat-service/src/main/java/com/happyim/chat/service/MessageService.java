@@ -459,26 +459,6 @@ public class MessageService {
         redisTemplate.opsForHash().increment(hashKey, "unread_count", 1);
     }
 
-    // 确保会话 hash 有 peer 信息，缺失时从 DB 补填
-        String hashKey = SESSION_PREFIX + userId + ":" + convId;
-        Object peerId = redisTemplate.opsForHash().get(hashKey, "peer_id");
-        if (peerId != null) return; // 已初始化
-
-        Map<String, Object> item = new LinkedHashMap<>();
-        item.put("conversationId", convId);
-        item.put("type", convType);
-        if (convType == 0) fillPrivateSession(userId, convId, item);
-        else fillGroupSession(convId, item);
-
-        Map<String, String> redisHash = new HashMap<>();
-        redisHash.put("type", String.valueOf(convType));
-        redisHash.put("peer_id", String.valueOf(item.getOrDefault("peerId", "")));
-        redisHash.put("peer_name", String.valueOf(item.getOrDefault("peerName", "")));
-        redisHash.put("peer_avatar", String.valueOf(item.getOrDefault("peerAvatar", "")));
-        redisHash.put("member_count", String.valueOf(item.getOrDefault("memberCount", "0")));
-        redisTemplate.opsForHash().putAll(hashKey, redisHash);
-    }
-
     private void updateSessionLastMsg(Long userId, String convId, String content, String msgType, long now) {
         String hashKey = SESSION_PREFIX + userId + ":" + convId;
         Map<String, String> updates = new HashMap<>();
