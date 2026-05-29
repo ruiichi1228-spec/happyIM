@@ -55,6 +55,10 @@ spring:
         - id: content-file-feed
           uri: lb://content-service
           predicates: Path=/api/file-feed/**
+        # chat-ws (WebSocket)
+        - id: chat-ws
+          uri: http://localhost:8081
+          predicates: Path=/ws/**
 
   # Sentinel 控制台（可选）
   # sentinel:

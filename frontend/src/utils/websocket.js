@@ -12,7 +12,7 @@ export function useWebSocket() {
     if (!token) return
 
     const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
-    socket = new WebSocket(`${protocol}//${location.hostname}:8081/ws?token=${token}`)
+    socket = new WebSocket(`${protocol}//${location.hostname}:8080/ws?token=${token}`)
 
     socket.onopen = () => {
       connected.value = true
