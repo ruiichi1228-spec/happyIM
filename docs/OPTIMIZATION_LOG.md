@@ -100,3 +100,25 @@
 - `content-service/application.yml` 添加 Redis 配置
 - `user-service/FriendController` 添加 `GET /api/users/{userId}/friends` 内部端点
 - `MomentService` 将 `friendId` 改为 `userId`（匹配 FriendVO 字段名）
+
+---
+
+## 9. Guava 本地缓存 ✅
+
+**问题**: user-service 每次查用户信息都走 MySQL（`/users/{id}/profile`、`/users/batch` 等高频接口）。
+
+**修复**:
+- `UserCache.java` — Guava `LoadingCache<Long, User>`，最大 1000 条，5 分钟过期
+- `UserController.getUserProfile()` — 走缓存
+- `UserController.getMyProfile()` — 走缓存
+- `UserController.updateProfile()` — 更新后淘汰缓存
+- 效果：高频读请求命中率预计 90%+，减少 MySQL 压力
+
+---
+
+## 10. 后续待做
+
+- [ ] RestTemplate → Feign（需 ApiResponse 适配层）
+- [ ] MyBatis-Plus 替换（用户暂缓）
+- [ ] Prometheus + Grafana 监控大盘
+- [ ] JMeter 压测出报告

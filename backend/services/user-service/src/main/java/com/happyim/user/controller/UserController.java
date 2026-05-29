@@ -9,6 +9,7 @@ import com.happyim.common.model.entity.Friend;
 import com.happyim.common.model.entity.User;
 import com.happyim.common.security.JwtUtil;
 import com.happyim.common.security.LoginRequired;
+import com.happyim.user.service.UserCache;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,39 +23,37 @@ public class UserController {
     private final JwtUtil jwtUtil;
     private final UserMapper userMapper;
     private final FriendMapper friendMapper;
+    private final UserCache userCache;
 
-    public UserController(JwtUtil jwtUtil, UserMapper userMapper, FriendMapper friendMapper) {
+    public UserController(JwtUtil jwtUtil, UserMapper userMapper, FriendMapper friendMapper,
+                          UserCache userCache) {
         this.jwtUtil = jwtUtil;
         this.userMapper = userMapper;
         this.friendMapper = friendMapper;
+        this.userCache = userCache;
+    }
+
+    private User getCachedUser(Long userId) {
+        User user = userCache.get(userId);
+        if (user == null) throw new BizException(ErrorCode.NOT_FOUND);
+        user.setPassword(null);
+        String raw = user.getAvatarUrl();
+        if (raw != null && !raw.isBlank() && !raw.startsWith("http")) {
+            user.setAvatarUrl("/api/files/avatar/" + userId);
+        }
+        return user;
     }
 
     @GetMapping("/me")
     @LoginRequired
     public ApiResponse<User> getMyProfile(HttpServletRequest request) {
         Long userId = jwtUtil.getUserId(extractToken(request));
-        User user = userMapper.findById(userId);
-        if (user == null) throw new BizException(ErrorCode.NOT_FOUND);
-        user.setPassword(null);
-        // 头像通过后端代理访问，不暴露 MinIO 地址
-        String raw = user.getAvatarUrl();
-        if (raw != null && !raw.isBlank() && !raw.startsWith("http")) {
-            user.setAvatarUrl("/api/files/avatar/" + userId);
-        }
-        return ApiResponse.success(user);
+        return ApiResponse.success(getCachedUser(userId));
     }
 
     @GetMapping("/{id}/profile")
-    @LoginRequired
     public ApiResponse<User> getUserProfile(@PathVariable Long id) {
-        User user = userMapper.findById(id);
-        if (user == null) throw new BizException(ErrorCode.NOT_FOUND);
-        user.setPassword(null);
-        String raw = user.getAvatarUrl();
-        if (raw != null && !raw.isBlank() && !raw.startsWith("http")) {
-            user.setAvatarUrl("/api/files/avatar/" + id);
-        }
-        return ApiResponse.success(user);
+        return ApiResponse.success(getCachedUser(id));
     }
 
     @PostMapping("/batch")
@@ -102,6 +101,7 @@ public class UserController {
         if (body.containsKey("description")) user.setDescription(body.get("description"));
 
         userMapper.updateProfile(user);
+        userCache.evict(userId);  // 更新后淘汰缓存
         return ApiResponse.message("更新成功");
     }
 
