@@ -276,11 +276,21 @@ public class MessageService {
 
                 Map<String, Object> item = new LinkedHashMap<>();
                 item.put("conversationId", convId);
-                item.put("type", Integer.valueOf(String.valueOf(hash.getOrDefault("type", "0"))));
                 item.put("peerId", String.valueOf(hash.getOrDefault("peer_id", "")));
                 item.put("peerName", String.valueOf(hash.getOrDefault("peer_name", "")));
                 item.put("peerAvatar", String.valueOf(hash.getOrDefault("peer_avatar", "")));
-                item.put("memberCount", Integer.valueOf(String.valueOf(hash.getOrDefault("member_count", "0"))));
+                int memberCount = Integer.parseInt(String.valueOf(hash.getOrDefault("member_count", "0")));
+                int type = Integer.parseInt(String.valueOf(hash.getOrDefault("type", "0")));
+                // 旧缓存可能没有 member_count，群聊时从 DB 补查
+                if (type == 1 && memberCount == 0) {
+                    try {
+                        long groupId = Long.parseLong(convId.substring(2));
+                        GroupChat g = groupChatMapper.findById(groupId);
+                        if (g != null) memberCount = g.getMemberCount();
+                    } catch (Exception ignored) {}
+                }
+                item.put("type", type);
+                item.put("memberCount", memberCount);
                 item.put("lastMsgContent", String.valueOf(hash.getOrDefault("last_msg_content", "")));
                 item.put("lastMsgType", "");
                 item.put("lastMsgTime", hash.getOrDefault("last_msg_time", "0"));
