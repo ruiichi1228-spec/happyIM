@@ -15,8 +15,6 @@ spring:
         ip: 127.0.0.1
       config:
         server-addr: localhost:8848
-        server-addr: localhost:8848
-        server-addr: localhost:8848
   data:
     redis:
       host: localhost
