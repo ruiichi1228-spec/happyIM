@@ -1,4 +1,9 @@
 <template>
+  <!-- 公告横幅 -->
+  <div v-if="announceBanner" class="announce-banner">
+    <span class="announce-banner-text">📢 {{ announceBanner }}</span>
+    <el-icon class="announce-banner-close" @click="announceBanner = ''"><Close /></el-icon>
+  </div>
   <div class="app-wrapper">
     <div class="layout">
     <!-- 左侧导航栏 60px -->
@@ -276,6 +281,7 @@ watch(() => route.path, (path) => {
   }
 })
 
+const announceBanner = ref('')
 const totalUnread = ref(0)
 const updateTotalUnread = (val) => { totalUnread.value = val }
 provide('updateUnread', updateTotalUnread)
@@ -452,7 +458,7 @@ onMounted(() => {
       else if (type === 'square_notify') { fetchSquareNotices(); playSquareSound() }
     }
     if (msg.action === 'event' && msg.data?.type === 'announcement') {
-      ElMessage({ message: '系统公告：' + msg.data.content, type: 'warning', duration: 8000, showClose: true })
+      announceBanner.value = msg.data.content
     }
     if (msg.action === 'new_message') { playMsgSound(); totalUnread.value++ }
   })
@@ -460,6 +466,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.announce-banner { display:flex; align-items:center; justify-content:center; padding:8px 24px; background:linear-gradient(135deg, #fff7e6, #ffe8c4); border-bottom:1px solid #ffd591; color:#ad6800; font-size:14px; position:sticky; top:0; z-index:1000; }
+.announce-banner-text { flex:1; text-align:center; }
+.announce-banner-close { cursor:pointer; margin-left:12px; font-size:16px; color:#ad6800; }
 .app-wrapper { width:100%; max-width:76%; min-width:900px; margin:0 auto; display:flex; padding:12px 0; height:100vh; box-sizing:border-box; }
 .layout { width:100%;
   display: flex;
