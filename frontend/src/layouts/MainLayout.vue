@@ -1,13 +1,13 @@
 <template>
-  <!-- 新公告浮动横幅 -->
-  <transition name="slide-down">
-    <div v-if="announcePopup" class="announce-float">
-      <span class="announce-float-icon">📢</span>
-      <span class="announce-float-text">{{ announcePopup }}</span>
-      <el-icon class="announce-float-close" @click="announcePopup = ''"><Close /></el-icon>
-    </div>
-  </transition>
   <div class="app-wrapper">
+    <!-- 公告横幅 -->
+    <transition name="slide-down">
+      <div v-if="announcePopup" class="announce-bar">
+        <span class="announce-bar-icon">📢</span>
+        <span class="announce-bar-text">{{ announcePopup }}</span>
+        <span class="announce-bar-close" @click="announcePopup = ''">✕</span>
+      </div>
+    </transition>
     <div class="layout">
     <!-- 左侧导航栏 60px -->
     <div class="nav-bar">
@@ -933,12 +933,12 @@ html.dark .ann-pop-item { border-color:#2a2a2a !important; }
 html.dark .ann-pop-content { color:#ccc !important; }
 html.dark .ann-pop-time { color:#777 !important; }
 html.dark .ann-pop-empty { color:#555 !important; }
-.announce-float { display:flex; align-items:center; padding:10px 24px; background:linear-gradient(135deg, #fffbe6, #fff1cc); border-bottom:1px solid #ffd591; color:#8c6a00; font-size:14px; z-index:2000; }
-.announce-float-icon { margin-right:10px; font-size:16px; flex-shrink:0; }
-.announce-float-text { flex:1; overflow:hidden; white-space:nowrap; }
-.announce-float-close { cursor:pointer; flex-shrink:0; margin-left:12px; color:#8c6a00; }
-.slide-down-enter-active, .slide-down-leave-active { transition:all .3s ease; }
-.slide-down-enter-from, .slide-down-leave-to { opacity:0; transform:translateY(-100%); }
-html.dark .announce-float { background:linear-gradient(135deg, #3d3520, #4a3a18); border-color:#5a4a20; color:#e6c85a; }
-html.dark .announce-float-close { color:#e6c85a; }
+.announce-bar { display:flex; align-items:center; padding:6px 16px; margin-bottom:12px; background:#fffbe6; border:1px solid #ffd591; border-radius:8px; color:#8c6a00; font-size:13px; }
+.announce-bar-icon { margin-right:8px; flex-shrink:0; }
+.announce-bar-text { flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.announce-bar-close { cursor:pointer; margin-left:10px; font-size:14px; opacity:0.5; }
+.announce-bar-close:hover { opacity:1; }
+.slide-down-enter-active, .slide-down-leave-active { transition:all .2s ease; }
+.slide-down-enter-from, .slide-down-leave-to { opacity:0; max-height:0; margin-bottom:0; padding-top:0; padding-bottom:0; }
+html.dark .announce-bar { background:#3d3520; border-color:#5a4a20; color:#e6c85a; }
 </style>
