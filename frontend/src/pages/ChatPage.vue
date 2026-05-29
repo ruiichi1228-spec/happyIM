@@ -794,7 +794,7 @@ const sendText = async () => {
   quoting.value = null
   nextTick(() => { if (msgListRef.value) msgListRef.value.scrollTop = msgListRef.value.scrollHeight })
   try {
-    const res = await request.post(`/conversations/${activeSession.value.conversationId}/messages`, { content, messageType: 'text', quoteMessageId: quotedMsg?.messageId || null, extra })
+    const res = await request.post(`/conversations/${activeSession.value.conversationId}/messages`, { content, messageType: 'text', quoteMessageId: quotedMsg?.messageId || null, mentions })
     const idx = messages.value.findIndex(m => m.messageId === tempId)
     if (res.code === 0 && idx >= 0) {
       messages.value[idx] = { ...tempMsg, messageId: res.data.messageId, createdAt: res.data.createdAt, status: 'sent', quoteMessageId: tempMsg.quoteMessageId, quoteSenderId: tempMsg.quoteSenderId, quoteMessageType: tempMsg.quoteMessageType, quoteContent: tempMsg.quoteContent }
