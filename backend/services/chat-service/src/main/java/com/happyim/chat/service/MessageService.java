@@ -373,13 +373,16 @@ public class MessageService {
     }
 
     public void deleteConversation(Long userId, String conversationId) {
+        mongoTemplate.remove(new Query(Criteria.where("userId").is(userId).and("conversationId").is(conversationId)), "message_feed");
         redisTemplate.delete(SESSION_PREFIX + userId + ":" + conversationId);
+        redisTemplate.opsForZSet().remove(SESSION_ZSET + userId, conversationId);
         log.info("会话已删除: userId={}, convId={}", userId, conversationId);
     }
 
     public void clearHistory(Long userId, String conversationId) {
         mongoTemplate.remove(new Query(Criteria.where("userId").is(userId).and("conversationId").is(conversationId)), "message_feed");
         redisTemplate.delete(SESSION_PREFIX + userId + ":" + conversationId);
+        redisTemplate.opsForZSet().remove(SESSION_ZSET + userId, conversationId);
         log.info("聊天记录已清除: userId={}, convId={}", userId, conversationId);
     }
 
