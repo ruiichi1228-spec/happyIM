@@ -7,6 +7,11 @@ let pending = []
 let timer = null
 let resolvePending = null
 
+function set(gid, data) {
+  if (!gid || !data) return
+  groups[gid] = { ...groups[gid], groupId: +gid, ...data }
+}
+
 function flush() {
   const ids = [...new Set(pending.filter(id => !groups[id]))]
   pending = []
@@ -34,11 +39,6 @@ export function useGroupCache() {
   const get = (gid) => {
     if (!gid) return null
     return groups[gid] || null
-  }
-
-  const set = (gid, data) => {
-    if (!gid || !data) return
-    groups[gid] = { ...groups[gid], groupId: +gid, ...data }
   }
 
   const batchFetch = (gids) => {
