@@ -43,7 +43,7 @@
     <div class="chat-main">
       <template v-if="activeSession">
         <div class="chat-header">
-          <span class="chat-name">{{ activeSession.peerName }}<span v-if="activeSession.type == 1" class="chat-group-tag">群聊</span></span>
+          <span class="chat-name">{{ activeSession.peerName }}<span v-if="activeSession.type == 1" class="chat-group-tag">群聊 ({{ activeSession.memberCount || 0 }}人)</span></span>
           <div class="header-actions">
             <el-icon class="more-icon" @click="historyVisible = true"><Clock /></el-icon>
             <el-icon class="more-icon" @click="drawerOpen = !drawerOpen"><MoreFilled /></el-icon>

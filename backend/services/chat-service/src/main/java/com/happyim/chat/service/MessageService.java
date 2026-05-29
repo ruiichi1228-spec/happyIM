@@ -526,6 +526,7 @@ public class MessageService {
         if (group != null) {
             item.put("peerName", group.getName() != null ? group.getName() : "");
             item.put("peerAvatar", group.getAvatarUrl() != null ? resolveGroupAvatar(group.getAvatarUrl()) : "");
+            item.put("memberCount", group.getMemberCount());
         } else {
             item.put("peerName", "");
             item.put("peerAvatar", "");
