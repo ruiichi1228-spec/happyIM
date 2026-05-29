@@ -605,8 +605,9 @@ const selectMention = (m) => {
 const removeMention = (uid) => { mentionChips.value = mentionChips.value.filter(id => id !== uid) }
 // 监听输入检测 @
 watch(msgText, (val) => {
-  if (!activeSession.value || activeSession.value.type !== 1) { showMentionPopup.value = false; return }
+  if (!activeSession.value || activeSession.value.type != 1) { showMentionPopup.value = false; return }
   const idx = (val || '').lastIndexOf('@')
+  console.log('@ watch:', idx, 'members:', (groupMembers.value||[]).length)
   if (idx >= 0) {
     const after = (val || '').substring(idx + 1)
     if (!after.includes(' ') && !after.includes('\n')) {
@@ -1343,7 +1344,7 @@ onMounted(() => {
 .card-pick-sub { font-size:12px; color:#999; }
 .location-input-row { display:flex; align-items:center; }
 
-.chat-input-area { border-top:1px solid #e2e2e2; background:#fff; border-radius:0 0 14px 0; }
+.chat-input-area { border-top:1px solid #e2e2e2; background:#fff; border-radius:0 0 14px 0; position:relative; }
 .chat-input-area :deep(.el-textarea__inner) { border:none; box-shadow:none; background:transparent; resize:none; }
 .chat-input-area :deep(.el-textarea__inner:focus) { border:none; box-shadow:none; }
 .toolbar { display:flex; gap:12px; padding:8px 20px 0; }
