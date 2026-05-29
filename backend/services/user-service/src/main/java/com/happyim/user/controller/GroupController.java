@@ -132,7 +132,10 @@ public class GroupController {
                 Map<String, Object> item = new LinkedHashMap<>();
                 item.put("groupId", g.getId());
                 item.put("name", g.getName());
-                item.put("avatarUrl", g.getAvatarUrl());
+                String raw = g.getAvatarUrl();
+                if (raw != null && !raw.isBlank() && !raw.startsWith("http"))
+                    raw = "/api/files/download/" + raw;
+                item.put("avatarUrl", raw);
                 item.put("memberCount", g.getMemberCount());
                 result.add(item);
             }
