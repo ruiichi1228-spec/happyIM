@@ -34,8 +34,23 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding wsBinding(Queue wsQueue, TopicExchange chatExchange) {
+    public Binding wsChatBinding(Queue wsQueue, TopicExchange chatExchange) {
         return BindingBuilder.bind(wsQueue).to(chatExchange).with(routingKey);
+    }
+
+    @Bean
+    public Binding wsMomentBinding(Queue wsQueue, TopicExchange chatExchange) {
+        return BindingBuilder.bind(wsQueue).to(chatExchange).with("notify.moment");
+    }
+
+    @Bean
+    public Binding wsSquareBinding(Queue wsQueue, TopicExchange chatExchange) {
+        return BindingBuilder.bind(wsQueue).to(chatExchange).with("notify.square");
+    }
+
+    @Bean
+    public Binding wsFriendBinding(Queue wsQueue, TopicExchange chatExchange) {
+        return BindingBuilder.bind(wsQueue).to(chatExchange).with("notify.friend");
     }
 
     @Bean
