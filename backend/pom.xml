@@ -18,8 +18,6 @@
 
     <modules>
         <module>happyim-common</module>
-        <module>happyim-api</module>
-        <module>happyim-ws</module>
         <module>api-contracts</module>
         <module>gateway</module>
         <module>services</module>

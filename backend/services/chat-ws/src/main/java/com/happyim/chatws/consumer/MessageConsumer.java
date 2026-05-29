@@ -81,7 +81,7 @@ public class MessageConsumer {
         return null;
     }
 
-    private void handlePrivate(String messageId, String convId, long fromUserId, Map<String, Object> msg) throws Exception {
+    private void handlePrivate(String messageId, String convId, long fromUserId, Map<String, Object> msg) {
         String[] parts = convId.substring(2).split("_");
         long a = Long.parseLong(parts[0]);
         long b = Long.parseLong(parts[1]);
@@ -90,7 +90,7 @@ public class MessageConsumer {
     }
 
     @SuppressWarnings("unchecked")
-    private void handleGroup(String messageId, String convId, long fromUserId, Map<String, Object> msg) throws Exception {
+    private void handleGroup(String messageId, String convId, long fromUserId, Map<String, Object> msg) {
         List<Integer> memberIds = (List<Integer>) msg.get("members");
         if (memberIds == null) return;
         for (int uid : memberIds) {
@@ -100,7 +100,7 @@ public class MessageConsumer {
     }
 
     private void pushToUser(Long userId, String convId, String messageId,
-                             long fromUserId, Map<String, Object> msg) throws Exception {
+                             long fromUserId, Map<String, Object> msg) {
         if (!wsHandler.isOnline(userId)) return;
 
         String content = (String) msg.get("content");

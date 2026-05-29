@@ -104,13 +104,10 @@ public class SquareService {
         likeEntry.put("nickname", u != null ? u.getNickname() : "");
         likeEntry.put("createdAt", System.currentTimeMillis());
 
+        // $addToSet: 原子操作，已存在则跳过
         mongoTemplate.updateFirst(
                 new Query(Criteria.where("_id").is(new ObjectId(postId))),
-                new Update().pull("likes", Query.query(Criteria.where("userId").is(userId))),
-                "square_posts");
-        mongoTemplate.updateFirst(
-                new Query(Criteria.where("_id").is(new ObjectId(postId))),
-                new Update().push("likes", likeEntry),
+                new Update().addToSet("likes", likeEntry),
                 "square_posts");
 
         Map m = mongoTemplate.findById(new ObjectId(postId), Map.class, "square_posts");
@@ -174,20 +171,12 @@ public class SquareService {
     }
 
     public void deleteComment(String postId, Long userId, int commentIndex) {
-        Map m = mongoTemplate.findById(new ObjectId(postId), Map.class, "square_posts");
-        if (m == null) return;
-        @SuppressWarnings("unchecked")
-        List<Map> comments = (List<Map>) m.get("comments");
-        if (comments != null && commentIndex >= 0 && commentIndex < comments.size()) {
-            Map c = comments.get(commentIndex);
-            if (userId.equals(c.get("userId"))) {
-                comments.remove(commentIndex);
-                mongoTemplate.updateFirst(
-                        new Query(Criteria.where("_id").is(new ObjectId(postId))),
-                        new Update().set("comments", comments),
-                        "square_posts");
-            }
-        }
+        // $pull 原子删除，避免读-改-写竞态
+        mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").is(new ObjectId(postId))),
+                new Update().pull("comments", Query.query(
+                        Criteria.where("userId").is(userId))),
+                "square_posts");
     }
 
     // ==================== 排行榜（Redis ZSET） ====================

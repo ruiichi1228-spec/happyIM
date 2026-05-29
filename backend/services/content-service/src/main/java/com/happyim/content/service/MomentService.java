@@ -112,14 +112,10 @@ public class MomentService {
         likeEntry.put("nickname", nick(u));
         likeEntry.put("createdAt", System.currentTimeMillis());
 
-        // 先移除旧的，再添加（防止重复）
+        // $addToSet: 原子操作，已存在则跳过，不存在则添加
         mongoTemplate.updateFirst(
                 new Query(Criteria.where("_id").is(new ObjectId(momentId))),
-                new Update().pull("likes", Query.query(Criteria.where("userId").is(userId))),
-                "moments");
-        mongoTemplate.updateFirst(
-                new Query(Criteria.where("_id").is(new ObjectId(momentId))),
-                new Update().push("likes", likeEntry),
+                new Update().addToSet("likes", likeEntry),
                 "moments");
 
         // 通知
@@ -166,19 +162,12 @@ public class MomentService {
     }
 
     public void deleteComment(String momentId, Long userId, int commentIndex) {
-        Map m = mongoTemplate.findById(new ObjectId(momentId), Map.class, "moments");
-        if (m == null) return;
-        List<Map> comments = (List<Map>) m.get("comments");
-        if (comments != null && commentIndex >= 0 && commentIndex < comments.size()) {
-            Map c = comments.get(commentIndex);
-            if (userId.equals(c.get("userId"))) {
-                comments.remove(commentIndex);
-                mongoTemplate.updateFirst(
-                        new Query(Criteria.where("_id").is(new ObjectId(momentId))),
-                        new Update().set("comments", comments),
-                        "moments");
-            }
-        }
+        // $pull 原子删除，避免读-改-写竞态
+        mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").is(new ObjectId(momentId))),
+                new Update().pull("comments", Query.query(
+                        Criteria.where("userId").is(userId))),
+                "moments");
     }
 
     // ==================== 通知 ====================
