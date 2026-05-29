@@ -44,6 +44,7 @@ public class MessageController {
         if (req.getFileSize() != null) extra.put("fileSize", req.getFileSize());
         if (req.getDuration() != null) extra.put("duration", req.getDuration());
         if (req.getQuoteMessageId() != null) extra.put("quoteMessageId", req.getQuoteMessageId());
+        if (req.getMentions() != null) extra.put("mentions", req.getMentions());
 
         Map<String, Object> result = messageService.sendMessage(
                 userId, conversationId, convType,
@@ -142,6 +143,8 @@ public class MessageController {
         private Long fileSize;
         private Integer duration;
         private String quoteMessageId;
+        private List<Long> mentions;
+        private Map<String, Object> extra;
 
         public String getContent() { return content; }
         public void setContent(String content) { this.content = content; }
@@ -155,5 +158,9 @@ public class MessageController {
         public void setDuration(Integer duration) { this.duration = duration; }
         public String getQuoteMessageId() { return quoteMessageId; }
         public void setQuoteMessageId(String quoteMessageId) { this.quoteMessageId = quoteMessageId; }
+        public List<Long> getMentions() { return mentions; }
+        public void setMentions(List<Long> mentions) { this.mentions = mentions; }
+        public Map<String, Object> getExtra() { return extra; }
+        public void setExtra(Map<String, Object> extra) { this.extra = extra; }
     }
 }

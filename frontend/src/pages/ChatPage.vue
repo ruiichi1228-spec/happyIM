@@ -1084,7 +1084,8 @@ onMessage((msg) => {
     const d = msg.data
     const sidx = sessions.value.findIndex(s => s.conversationId === d.conversationId)
     if (sidx >= 0) {
-      sessions.value[sidx].lastMsgContent = (d.senderName ? d.senderName + ': ' : '') + (d.preview || '')
+      const mentionPrefix = d.mention ? '[有人@你] ' : ''
+	      sessions.value[sidx].lastMsgContent = mentionPrefix + (d.senderName ? d.senderName + ': ' : '') + (d.preview || '')
       sessions.value[sidx].lastMsgTime = Date.now()
       sessions.value[sidx].lastMsgType = d.messageType || 'text'
       sessions.value[sidx].unreadCount = (sessions.value[sidx].unreadCount || 0) + 1
