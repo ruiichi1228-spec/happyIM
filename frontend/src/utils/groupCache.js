@@ -15,12 +15,17 @@ function flush() {
   resolvePending = null
   if (ids.length === 0) { resolve && resolve(); return }
 
+  console.log('[groupCache] batch fetch:', ids)
   request.post('/groups/batch', ids).then(res => {
     if (res.code === 0 && res.data) {
+      console.log('[groupCache] batch fetched', res.data.length, 'groups')
       res.data.forEach(g => set(g.groupId || g.id, g))
+    } else {
+      console.log('[groupCache] batch fetch failed:', res)
     }
     resolve && resolve()
-  }).catch(() => {
+  }).catch(e => {
+    console.log('[groupCache] batch fetch error:', e)
     resolve && resolve()
   })
 }
