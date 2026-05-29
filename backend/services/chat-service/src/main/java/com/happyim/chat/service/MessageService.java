@@ -213,55 +213,26 @@ public class MessageService {
 
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("conversationId", convId);
+            // type 由 id 前缀直接解析
+            item.put("type", convId.startsWith("g_") ? 1 : 0);
 
             if (!hash.isEmpty()) {
-                int type = Integer.parseInt(String.valueOf(hash.getOrDefault("type", "0")));
-                item.put("type", type);
-                item.put("peerId", String.valueOf(hash.getOrDefault("peer_id", "")));
-                item.put("peerName", String.valueOf(hash.getOrDefault("peer_name", "")));
-                item.put("peerAvatar", String.valueOf(hash.getOrDefault("peer_avatar", "")));
                 item.put("lastMsgContent", String.valueOf(hash.getOrDefault("last_msg_content", "")));
                 item.put("lastMsgType", String.valueOf(hash.getOrDefault("last_msg_type", "")));
                 item.put("lastMsgTime", hash.getOrDefault("last_msg_time", "0"));
-                item.put("lastSenderId", String.valueOf(hash.getOrDefault("last_sender_id", "")));
                 item.put("unreadCount", Integer.valueOf(String.valueOf(hash.getOrDefault("unread_count", "0"))));
-                item.put("memberCount", Integer.valueOf(String.valueOf(hash.getOrDefault("member_count", "0"))));
                 item.put("pinned", "1".equals(hash.get("pinned")));
-                if (type == 1 && (int) item.get("memberCount") <= 0) {
-                    try {
-                        GroupChat g = groupChatMapper.findById(Long.parseLong(convId.substring(2)));
-                        if (g != null) item.put("memberCount", g.getMemberCount());
-                    } catch (Exception ignored) {}
-                }
             } else {
-                int type = convId.startsWith("g_") ? 1 : 0;
-                item.put("type", type);
-                if (type == 0) fillPrivateSession(userId, convId, item);
-                else fillGroupSession(convId, item);
                 item.put("lastMsgContent", "");
                 item.put("lastMsgType", "");
                 item.put("lastMsgTime", 0);
-                item.put("lastSenderId", "");
                 item.put("unreadCount", 0);
-                item.put("memberCount", 0);
                 item.put("pinned", false);
             }
 
             list.add(item);
         }
         return list;
-    }
-
-    public void pinConversation(Long userId, String conversationId, boolean pinned) {
-        String hashKey = SESSION_PREFIX + userId + ":" + conversationId;
-        redisTemplate.opsForHash().put(hashKey, "pinned", pinned ? "1" : "0");
-        if (pinned) {
-            redisTemplate.opsForZSet().add(SESSION_ZSET + userId, conversationId, 9999999999999.0);
-        } else {
-            Object lastTime = redisTemplate.opsForHash().get(hashKey, "last_msg_time");
-            double score = lastTime != null ? Double.parseDouble(String.valueOf(lastTime)) : System.currentTimeMillis();
-            redisTemplate.opsForZSet().add(SESSION_ZSET + userId, conversationId, score);
-        }
     }
 
     // ==================== 已读 ====================
