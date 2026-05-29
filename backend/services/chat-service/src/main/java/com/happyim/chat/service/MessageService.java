@@ -75,6 +75,15 @@ public class MessageService {
                                             String content, String messageType, Map<String, Object> extra) {
         validateParticipant(fromUserId, conversationId, convType);
 
+        // 群聊检查群是否已解散
+        if (convType == 1) {
+            long groupId = Long.parseLong(conversationId.substring(2));
+            GroupChat group = groupChatMapper.findById(groupId);
+            if (group == null || group.getStatus() == 1) {
+                throw new BizException(ErrorCode.NOT_FOUND, "群组不存在或已解散");
+            }
+        }
+
         String filtered = "text".equals(messageType) ? filterChain.execute(content) : content;
         String messageId = idGenerator.generate(conversationId, convType);
         long now = System.currentTimeMillis();
