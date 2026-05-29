@@ -330,9 +330,6 @@ public class FriendService {
         vo.setId(req.getId());
         vo.setFromUserId(req.getFromUserId());
         if (fromUser != null) {
-            vo.setFromUsername(fromUser.getUsername());
-            vo.setFromNickname(fromUser.getNickname());
-            vo.setFromAvatarUrl(resolveAvatar(fromUser));
         }
         vo.setMessage(req.getMessage());
         vo.setStatus(req.getStatus());

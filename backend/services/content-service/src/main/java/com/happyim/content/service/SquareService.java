@@ -50,8 +50,6 @@ public class SquareService {
         User u = userMapper.findById(userId);
         Map<String, Object> doc = new LinkedHashMap<>();
         doc.put("userId", userId);
-        doc.put("nickname", u != null ? u.getNickname() : "");
-        doc.put("avatar", u != null ? resolveAvatar(u) : "");
         doc.put("content", content);
         doc.put("mediaUrls", mediaUrls);
         doc.put("likes", new ArrayList<>());
@@ -101,7 +99,6 @@ public class SquareService {
         User u = userMapper.findById(userId);
         Map<String, Object> likeEntry = new LinkedHashMap<>();
         likeEntry.put("userId", userId);
-        likeEntry.put("nickname", u != null ? u.getNickname() : "");
         likeEntry.put("createdAt", System.currentTimeMillis());
 
         // $addToSet: 原子操作，已存在则跳过
@@ -130,11 +127,9 @@ public class SquareService {
         User ru = replyTo != null ? userMapper.findById(replyTo) : null;
         Map<String, Object> commentEntry = new LinkedHashMap<>();
         commentEntry.put("userId", userId);
-        commentEntry.put("nickname", u != null ? u.getNickname() : "");
         commentEntry.put("content", content);
         if (replyTo != null) {
             commentEntry.put("replyToUserId", replyTo);
-            commentEntry.put("replyToNickname", ru != null ? ru.getNickname() : "");
         }
         commentEntry.put("createdAt", System.currentTimeMillis());
 
@@ -200,8 +195,6 @@ public class SquareService {
             User u = userMap.get(uid);
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("userId", uid);
-            item.put("nickname", u != null ? u.getNickname() : "");
-            item.put("avatar", u != null ? resolveAvatar(u) : "");
             item.put("score", score != null ? score.intValue() : 0);
             result.add(item);
             rank++;
@@ -301,8 +294,6 @@ public class SquareService {
         Map<String, Object> n = new LinkedHashMap<>();
         n.put("userId", userId);
         n.put("fromUserId", fromUserId);
-        n.put("fromNickname", from != null ? from.getNickname() : "");
-        n.put("fromAvatar", from != null ? resolveAvatar(from) : "");
         n.put("postId", postId);
         n.put("type", type);
         n.put("content", content);

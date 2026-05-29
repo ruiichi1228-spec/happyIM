@@ -56,8 +56,6 @@ public class MomentService {
         Map<String, Object> u = client.getUser(userId);
         Map<String, Object> doc = new LinkedHashMap<>();
         doc.put("userId", userId);
-        doc.put("nickname", nick(u));
-        doc.put("avatar", avatar(u));
         doc.put("content", content);
         doc.put("mediaUrls", mediaUrls);
         doc.put("visibility", 0);
@@ -109,7 +107,6 @@ public class MomentService {
         Map<String, Object> u = client.getUser(userId);
         Map<String, Object> likeEntry = new LinkedHashMap<>();
         likeEntry.put("userId", userId);
-        likeEntry.put("nickname", nick(u));
         likeEntry.put("createdAt", System.currentTimeMillis());
 
         // $addToSet: 原子操作，已存在则跳过，不存在则添加
@@ -139,11 +136,9 @@ public class MomentService {
         Map<String, Object> ru = replyTo != null ? client.getUser(replyTo) : null;
         Map<String, Object> commentEntry = new LinkedHashMap<>();
         commentEntry.put("userId", userId);
-        commentEntry.put("nickname", nick(u));
         commentEntry.put("content", content);
         if (replyTo != null) {
             commentEntry.put("replyToUserId", replyTo);
-            commentEntry.put("replyToNickname", nick(ru));
         }
         commentEntry.put("createdAt", System.currentTimeMillis());
 
@@ -252,8 +247,6 @@ public class MomentService {
         Map<String, Object> n = new LinkedHashMap<>();
         n.put("userId", userId);
         n.put("fromUserId", fromUserId);
-        n.put("fromNickname", nick(from));
-        n.put("fromAvatar", avatar(from));
         n.put("momentId", momentId);
         n.put("type", type);
         n.put("content", content);
