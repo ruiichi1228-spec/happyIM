@@ -66,3 +66,5 @@ management:
 
 jwt:
   secret: ${JWT_SECRET:change-me-to-a-random-secret-at-least-256-bits}
+  access-token-expire: 900
+  refresh-token-expire: 604800
