@@ -134,7 +134,7 @@ public class GroupController {
                 item.put("name", g.getName());
                 String raw = g.getAvatarUrl();
                 if (raw != null && !raw.isBlank() && !raw.startsWith("http"))
-                    raw = "/api/files/download/" + raw;
+                    raw = "/api/files/download/" + raw.substring(raw.indexOf("/") + 1);
                 item.put("avatarUrl", raw);
                 item.put("memberCount", g.getMemberCount());
                 result.add(item);

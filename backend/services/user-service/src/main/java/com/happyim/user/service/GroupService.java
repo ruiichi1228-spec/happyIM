@@ -351,6 +351,6 @@ public class GroupService {
     private String resolveGroupAvatar(String raw) {
         if (raw == null || raw.isBlank()) return null;
         if (raw.startsWith("http")) return raw;
-        return "/api/files/download/" + raw;
+        return "/api/files/download/" + raw.substring(raw.indexOf("/") + 1);
     }
 }
