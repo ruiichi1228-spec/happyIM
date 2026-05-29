@@ -1282,8 +1282,8 @@ onMounted(() => {
 
 .system-msg { text-align:center; font-size:12px; color:#999; padding:6px; }
 .announcement-msg { display:flex; justify-content:center; padding:8px; }
-.announcement-card { display:inline-flex; flex-direction:column; align-items:center; gap:6px; background:#fffbe6; border:1px solid #ffe58f; border-radius:8px; padding:12px 20px; max-width:300px; }
-.announcement-text { font-size:14px; color:#333; text-align:center; }
+.announcement-card { display:inline-flex; flex-direction:column; align-items:center; gap:6px; background:#fffbe6; border:1px solid #ffe58f; border-radius:8px; padding:12px 20px; width:280px; }
+.announcement-text { font-size:14px; color:#333; text-align:center; width:100%; word-break:break-all; }
 
 .msg-row { display:flex; gap:10px; margin:4px 0; align-items:flex-start; }
 .msg-self { justify-content:flex-end; }
