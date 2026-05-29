@@ -135,7 +135,10 @@ public class GroupService {
             GroupMember me = groupMemberMapper.findByGroupAndUser(g.getId(), userId);
             GroupVO vo = new GroupVO();
             vo.setGroupId(g.getId());
+            vo.setName(g.getName());
+            vo.setAvatarUrl(resolveGroupAvatar(g.getAvatarUrl()));
             vo.setOwnerId(g.getOwnerId());
+            vo.setMemberCount(g.getMemberCount());
             vo.setMyRole(me != null ? me.getRole() : 3);
             vos.add(vo);
         }
@@ -312,10 +315,13 @@ public class GroupService {
     private GroupDetailVO buildDetail(GroupChat group, Long userId) {
         GroupDetailVO vo = new GroupDetailVO();
         vo.setGroupId(group.getId());
+        vo.setName(group.getName());
+        vo.setAvatarUrl(resolveGroupAvatar(group.getAvatarUrl()));
         vo.setDescription(group.getDescription());
         vo.setNotice(group.getNotice());
         vo.setOwnerId(group.getOwnerId());
         List<GroupMember> members = groupMemberMapper.findByGroupId(group.getId());
+        vo.setMemberCount(members != null ? members.size() : 0);
         vo.setMaxMembers(group.getMaxMembers());
         vo.setAllowInvite(group.getAllowInvite() == null || group.getAllowInvite() == 1);
         vo.setCreatedTime(group.getCreatedTime() != null ? group.getCreatedTime().toString() : null);
@@ -326,6 +332,8 @@ public class GroupService {
             GroupMemberVO mv = new GroupMemberVO();
             mv.setUserId(m.getUserId());
             if (u != null) {
+                mv.setUsername(u.getUsername());
+                mv.setNickname(u.getNickname());
                 mv.setAvatarUrl(u.getAvatarUrl() != null && !u.getAvatarUrl().startsWith("http") ? "/api/files/avatar/" + u.getId() : u.getAvatarUrl());
             }
             mv.setRole(m.getRole());

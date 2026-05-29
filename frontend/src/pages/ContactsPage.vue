@@ -291,14 +291,11 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '@/utils/request'
 import { useUserCache } from '@/utils/userCache'
-import { useGroupCache } from '@/utils/groupCache'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, ChatDotRound, Delete, Plus, Switch, Check, Close } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userCache = useUserCache()
-const groupCache = useGroupCache()
-const groupInfo = groupCache.groups
 
 const searchText = ref(''), searchMore = ref(false), addSearch = ref('')
 const activeType = ref(null), activeItem = ref(null)
@@ -365,7 +362,7 @@ const friendSignature = computed(() => {
 // ===== 数据 =====
 const fetchFriends = async () => { try { const res = await request.get('/friends'); if (res.code === 0) { friends.value = res.data; userCache.setAll(res.data) } } catch (e) {} }
 const fetchRequests = async () => { try { const res = await request.get('/friends/requests'); if (res.code === 0) { friendRequests.value = res.data.list || []; pendingCount.value = res.data.pendingCount || 0 } } catch (e) {} }
-const fetchGroups = async () => { try { const res = await request.get('/groups'); if (res.code === 0) { const list = res.data; const gids = list.map(g => g.groupId).filter(Boolean); await groupCache.batchFetch(gids); list.forEach(g => { const info = groupInfo[g.groupId]; if (info) { g.name = info.name; g.avatarUrl = info.avatarUrl; g.memberCount = info.memberCount } }); groups.value = list } } catch (e) {} }
+const fetchGroups = async () => { try { const res = await request.get('/groups'); if (res.code === 0) groups.value = res.data } catch (e) {} }
 
 const createPrivateChat = async (friend) => {
   try { const res = await request.post('/conversations/private', { peerId: friend.userId }); if (res.code === 0) router.push('/chat') } catch (e) { ElMessage.error('创建会话失败') }
@@ -383,9 +380,6 @@ const selectGroup = async (g) => {
     const res = await request.get(`/groups/${g.groupId}`)
     if (res.code === 0) {
       groupDetail.value = res.data
-      // 从 cache 补 name/avatar/memberCount
-      const gi = groupInfo[g.groupId]
-      if (gi) { groupDetail.value.name = gi.name; groupDetail.value.avatarUrl = gi.avatarUrl; groupDetail.value.memberCount = gi.memberCount }
       userCache.setAll(res.data.members)
       const me = res.data.members?.find(m => m.userId === myUserId())
       myGroupNickname.value = me?.groupNickname || ''
