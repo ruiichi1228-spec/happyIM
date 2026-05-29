@@ -136,7 +136,7 @@ public class GroupController {
                 if (raw != null && !raw.isBlank() && !raw.startsWith("http"))
                     raw = "/api/files/download/" + raw.substring(raw.indexOf("/") + 1);
                 item.put("avatarUrl", raw);
-                item.put("memberCount", g.getMemberCount());
+                item.put("memberCount", groupMemberMapper.findByGroupId(g.getId()).size());
                 result.add(item);
             }
         }

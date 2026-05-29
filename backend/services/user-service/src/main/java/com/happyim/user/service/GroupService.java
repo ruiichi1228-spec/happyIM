@@ -320,12 +320,12 @@ public class GroupService {
         vo.setDescription(group.getDescription());
         vo.setNotice(group.getNotice());
         vo.setOwnerId(group.getOwnerId());
-        vo.setMemberCount(group.getMemberCount());
+        List<GroupMember> members = groupMemberMapper.findByGroupId(group.getId());
+        vo.setMemberCount(members != null ? members.size() : 0);
         vo.setMaxMembers(group.getMaxMembers());
         vo.setAllowInvite(group.getAllowInvite() == null || group.getAllowInvite() == 1);
         vo.setCreatedTime(group.getCreatedTime() != null ? group.getCreatedTime().toString() : null);
 
-        List<GroupMember> members = groupMemberMapper.findByGroupId(group.getId());
         List<GroupMemberVO> memberVOs = new ArrayList<>();
         for (GroupMember m : members) {
             User u = userMapper.findById(m.getUserId());
