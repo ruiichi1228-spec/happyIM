@@ -111,7 +111,6 @@ public class AdminController {
 
     // ==================== 系统公告 ====================
 
-    @AdminRequired
     @GetMapping("/announcements")
     public ApiResponse<?> listAnnouncements() {
         return ApiResponse.success(adminService.listAnnouncements());

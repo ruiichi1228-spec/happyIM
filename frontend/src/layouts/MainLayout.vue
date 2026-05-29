@@ -1,9 +1,4 @@
 <template>
-  <!-- 公告横幅 -->
-  <div v-if="announceBanner" class="announce-banner">
-    <span class="announce-banner-text">📢 {{ announceBanner }}</span>
-    <el-icon class="announce-banner-close" @click="announceBanner = ''"><Close /></el-icon>
-  </div>
   <div class="app-wrapper">
     <div class="layout">
     <!-- 左侧导航栏 60px -->
@@ -59,6 +54,24 @@
       </div>
 
       <div class="nav-bottom">
+        <!-- 公告铃铛 -->
+        <el-popover placement="right" :width="320" trigger="click" @show="loadAnnouncements">
+          <template #reference>
+            <div class="nav-item" style="position:relative">
+              <el-badge :value="announceCount" :hidden="!announceCount" :max="99">
+                <el-icon color="#bbb" :size="20"><Bell /></el-icon>
+              </el-badge>
+            </div>
+          </template>
+          <div class="ann-pop-title">系统公告</div>
+          <div class="ann-pop-list" v-if="announceList.length">
+            <div v-for="a in announceList" :key="a.id" class="ann-pop-item">
+              <div class="ann-pop-content">{{ a.content }}</div>
+              <div class="ann-pop-time">{{ formatAnnTime(a.createdTime) }}</div>
+            </div>
+          </div>
+          <div v-else class="ann-pop-empty">暂无公告</div>
+        </el-popover>
         <el-tooltip :content="soundMuted ? '已静音' : '消息提示音'" placement="right" :show-after="400">
           <div class="nav-item" @click="toggleMuteSound">
             <el-icon :color="soundMuted ? '#fa5151' : '#bbb'" :size="20"><MuteNotification /></el-icon>
@@ -281,7 +294,18 @@ watch(() => route.path, (path) => {
   }
 })
 
-const announceBanner = ref('')
+const announceList = ref([])
+const announceCount = ref(0)
+const loadAnnouncements = async () => {
+  try {
+    const res = await request.get('/admin/announcements')
+    if (res.code === 0) { announceList.value = res.data; announceCount.value = 0 }
+  } catch(e) {}
+}
+const formatAnnTime = (ts) => {
+  if (!ts) return ''
+  return new Date(ts).toLocaleDateString('zh-CN', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })
+}
 const totalUnread = ref(0)
 const updateTotalUnread = (val) => { totalUnread.value = val }
 provide('updateUnread', updateTotalUnread)
@@ -458,7 +482,7 @@ onMounted(() => {
       else if (type === 'square_notify') { fetchSquareNotices(); playSquareSound() }
     }
     if (msg.action === 'event' && msg.data?.type === 'announcement') {
-      announceBanner.value = msg.data.content
+      announceCount.value++
     }
     if (msg.action === 'new_message') { playMsgSound(); totalUnread.value++ }
   })
@@ -466,9 +490,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.announce-banner { display:flex; align-items:center; justify-content:center; padding:8px 24px; background:linear-gradient(135deg, #fff7e6, #ffe8c4); border-bottom:1px solid #ffd591; color:#ad6800; font-size:14px; position:sticky; top:0; z-index:1000; }
-.announce-banner-text { flex:1; text-align:center; }
-.announce-banner-close { cursor:pointer; margin-left:12px; font-size:16px; color:#ad6800; }
 .app-wrapper { width:100%; max-width:76%; min-width:900px; margin:0 auto; display:flex; padding:12px 0; height:100vh; box-sizing:border-box; }
 .layout { width:100%;
   display: flex;
@@ -631,6 +652,14 @@ onMounted(() => {
   display: flex;
   gap: 8px;
 }
+
+.ann-pop-title { font-weight:600; font-size:15px; padding-bottom:10px; border-bottom:1px solid #f0f0f0; margin-bottom:8px; }
+.ann-pop-list { max-height:300px; overflow-y:auto; }
+.ann-pop-item { padding:10px 0; border-bottom:1px solid #f9f9f9; }
+.ann-pop-item:last-child { border-bottom:none; }
+.ann-pop-content { font-size:14px; color:#333; line-height:1.5; }
+.ann-pop-time { font-size:12px; color:#999; margin-top:4px; }
+.ann-pop-empty { text-align:center; color:#ccc; padding:20px; font-size:13px; }
 </style>
 
 <style>
