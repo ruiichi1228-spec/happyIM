@@ -1,13 +1,15 @@
 <template>
-  <div class="app-wrapper">
-    <!-- 公告横幅 -->
-    <transition name="slide-down">
-      <div v-if="announcePopup" class="announce-bar">
-        <span class="announce-bar-icon">📢</span>
-        <span class="announce-bar-text">{{ announcePopup }}</span>
-        <span class="announce-bar-close" @click="announcePopup = ''">✕</span>
+  <!-- 公告滚动条 - 固定在窗口顶部 -->
+  <transition name="slide-down">
+    <div v-if="announcePopup" class="announce-topbar">
+      <div class="announce-topbar-inner">
+        <span class="announce-topbar-icon">📢</span>
+        <span class="announce-topbar-text">{{ announcePopup }}</span>
+        <span class="announce-topbar-close" @click="announcePopup = ''">✕</span>
       </div>
-    </transition>
+    </div>
+  </transition>
+  <div class="app-wrapper">
     <div class="layout">
     <!-- 左侧导航栏 60px -->
     <div class="nav-bar">
@@ -933,12 +935,15 @@ html.dark .ann-pop-item { border-color:#2a2a2a !important; }
 html.dark .ann-pop-content { color:#ccc !important; }
 html.dark .ann-pop-time { color:#777 !important; }
 html.dark .ann-pop-empty { color:#555 !important; }
-.announce-bar { display:flex; align-items:center; padding:6px 16px; margin-bottom:12px; background:#fffbe6; border:1px solid #ffd591; border-radius:8px; color:#8c6a00; font-size:13px; }
-.announce-bar-icon { margin-right:8px; flex-shrink:0; }
-.announce-bar-text { flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-.announce-bar-close { cursor:pointer; margin-left:10px; font-size:14px; opacity:0.5; }
-.announce-bar-close:hover { opacity:1; }
-.slide-down-enter-active, .slide-down-leave-active { transition:all .2s ease; }
-.slide-down-enter-from, .slide-down-leave-to { opacity:0; max-height:0; margin-bottom:0; padding-top:0; padding-bottom:0; }
-html.dark .announce-bar { background:#3d3520; border-color:#5a4a20; color:#e6c85a; }
+.announce-topbar { position:fixed; top:0; left:0; right:0; z-index:9999; background:#fffbe6; border-bottom:1px solid #ffd591; }
+.announce-topbar-inner { display:flex; align-items:center; height:32px; padding:0 20px; }
+.announce-topbar-icon { flex-shrink:0; margin-right:8px; }
+.announce-topbar-text { flex:1; color:#8c6a00; font-size:13px; text-align:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.announce-topbar-close { flex-shrink:0; cursor:pointer; margin-left:12px; color:#8c6a00; font-size:14px; opacity:0.5; }
+.announce-topbar-close:hover { opacity:1; }
+.slide-down-enter-active, .slide-down-leave-active { transition:all .3s ease; }
+.slide-down-enter-from, .slide-down-leave-to { transform:translateY(-100%); opacity:0; }
+html.dark .announce-topbar { background:#3d3520; border-color:#5a4a20; }
+html.dark .announce-topbar-text { color:#e6c85a; }
+html.dark .announce-topbar-close { color:#e6c85a; }
 </style>
