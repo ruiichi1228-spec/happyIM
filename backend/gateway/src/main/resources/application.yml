@@ -60,10 +60,10 @@ spring:
           uri: http://localhost:8081
           predicates: Path=/ws/**
 
-  # Sentinel 控制台（可选）
-  # sentinel:
-  #   transport:
-  #     dashboard: localhost:8088
+  sentinel:
+    transport:
+      dashboard: localhost:8088
+    eager: true
 
 management:
   endpoints:
