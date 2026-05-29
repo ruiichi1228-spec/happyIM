@@ -30,6 +30,8 @@ request.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
+let refreshPromise = null
+
 // 响应拦截器：自动刷新 token
 request.interceptors.response.use(
   (response) => {
@@ -38,17 +40,20 @@ request.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // 如果是 401 且还没重试过，尝试刷新 token
     if (error.response?.status === 401 && !originalRequest._retry) {
       const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken) {
         originalRequest._retry = true
         try {
-          const res = await axios.post(
-            `${API_BASE_URL}/auth/refresh-token`,
-            { refreshToken },
-            { timeout: 5000 }
-          )
+          // 防并发刷新：多个 401 共享同一个 refresh 请求
+          if (!refreshPromise) {
+            refreshPromise = axios.post(
+              `${API_BASE_URL}/auth/refresh-token`,
+              { refreshToken },
+              { timeout: 5000 }
+            ).finally(() => { refreshPromise = null })
+          }
+          const res = await refreshPromise
           const data = res.data?.data || res.data
           if (data?.accessToken) {
             localStorage.setItem('access_token', data.accessToken)
@@ -57,7 +62,7 @@ request.interceptors.response.use(
             return request(originalRequest)
           }
         } catch (refreshError) {
-          // refresh 失败，跳登录
+          refreshPromise = null
           clearAuth()
           router.push('/login')
           return Promise.reject(refreshError)
