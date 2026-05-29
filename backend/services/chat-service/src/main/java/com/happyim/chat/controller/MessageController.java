@@ -127,6 +127,20 @@ public class MessageController {
         return ApiResponse.message("聊天记录已清除");
     }
 
+    @PutMapping("/{conversationId}/pin")
+    @LoginRequired
+    public ApiResponse<Void> pinConversation(@PathVariable String conversationId, HttpServletRequest request) {
+        messageService.pinConversation(getUserId(request), conversationId, true);
+        return ApiResponse.message("success");
+    }
+
+    @PutMapping("/{conversationId}/unpin")
+    @LoginRequired
+    public ApiResponse<Void> unpinConversation(@PathVariable String conversationId, HttpServletRequest request) {
+        messageService.pinConversation(getUserId(request), conversationId, false);
+        return ApiResponse.message("success");
+    }
+
     private Long getUserId(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {

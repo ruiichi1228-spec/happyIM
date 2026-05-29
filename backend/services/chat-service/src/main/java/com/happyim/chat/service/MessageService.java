@@ -195,118 +195,70 @@ public class MessageService {
 
     // ==================== 会话列表 ====================
 
-    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getConversationList(Long userId) {
-        Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("userId").is(userId)),
-                Aggregation.sort(Sort.by(Sort.Direction.DESC, "messageId")),
-                Aggregation.group("conversationId")
-                        .first("messageId").as("lastMessageId")
-                        .first("conversationId").as("convId")
-        );
-        AggregationResults<Map> results = mongoTemplate.aggregate(agg, "message_feed", Map.class);
+        String zsetKey = SESSION_ZSET + userId;
         List<Map<String, Object>> list = new ArrayList<>();
 
-        for (Map row : results.getMappedResults()) {
-            String convId = (String) row.get("convId");
-            String lastMsgId = (String) row.get("lastMessageId");
+        Set<org.springframework.data.redis.core.ZSetOperations.TypedTuple<String>> zset =
+                redisTemplate.opsForZSet().reverseRangeWithScores(zsetKey, 0, -1);
+        if (zset == null || zset.isEmpty()) return list;
 
-            Map msgDoc = mongoTemplate.findOne(
-                    new Query(Criteria.where("messageId").is(lastMsgId)), Map.class, "messages");
+        for (var tuple : zset) {
+            String convId = tuple.getValue();
+            String hashKey = SESSION_PREFIX + userId + ":" + convId;
+            Map<Object, Object> hash = redisTemplate.opsForHash().entries(hashKey);
 
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("conversationId", convId);
-            int type = convId.startsWith("g_") ? 1 : 0;
-            item.put("type", type);
 
-            if (type == 0) fillPrivateSession(userId, convId, item);
-            else fillGroupSession(convId, item);
-
-            if (msgDoc != null) {
-                item.put("lastMsgContent", msgDoc.getOrDefault("content", ""));
-                item.put("lastMsgType", msgDoc.getOrDefault("messageType", "text"));
-                item.put("lastMsgTime", msgDoc.getOrDefault("createdAt", 0));
-                item.put("lastSenderId", msgDoc.getOrDefault("fromUserId", ""));
+            if (!hash.isEmpty()) {
+                int type = Integer.parseInt(String.valueOf(hash.getOrDefault("type", "0")));
+                item.put("type", type);
+                item.put("peerId", String.valueOf(hash.getOrDefault("peer_id", "")));
+                item.put("peerName", String.valueOf(hash.getOrDefault("peer_name", "")));
+                item.put("peerAvatar", String.valueOf(hash.getOrDefault("peer_avatar", "")));
+                item.put("lastMsgContent", String.valueOf(hash.getOrDefault("last_msg_content", "")));
+                item.put("lastMsgType", String.valueOf(hash.getOrDefault("last_msg_type", "")));
+                item.put("lastMsgTime", hash.getOrDefault("last_msg_time", "0"));
+                item.put("lastSenderId", String.valueOf(hash.getOrDefault("last_sender_id", "")));
+                item.put("unreadCount", Integer.valueOf(String.valueOf(hash.getOrDefault("unread_count", "0"))));
+                item.put("memberCount", Integer.valueOf(String.valueOf(hash.getOrDefault("member_count", "0"))));
+                item.put("pinned", "1".equals(hash.get("pinned")));
+                if (type == 1 && (int) item.get("memberCount") <= 0) {
+                    try {
+                        GroupChat g = groupChatMapper.findById(Long.parseLong(convId.substring(2)));
+                        if (g != null) item.put("memberCount", g.getMemberCount());
+                    } catch (Exception ignored) {}
+                }
             } else {
+                int type = convId.startsWith("g_") ? 1 : 0;
+                item.put("type", type);
+                if (type == 0) fillPrivateSession(userId, convId, item);
+                else fillGroupSession(convId, item);
                 item.put("lastMsgContent", "");
                 item.put("lastMsgType", "");
                 item.put("lastMsgTime", 0);
                 item.put("lastSenderId", "");
-            }
-
-            // 未读数直接从 Redis hash 读取，不对比游标
-            String hashKey = SESSION_PREFIX + userId + ":" + convId;
-            Object unreadObj = redisTemplate.opsForHash().get(hashKey, "unread_count");
-            int unread = 0;
-            if (unreadObj != null) {
-                try { unread = Integer.parseInt(unreadObj.toString()); } catch (NumberFormatException e) {}
-            }
-            item.put("unreadCount", unread);
-
-            // 同步写回 Redis 缓存
-            Map<String, String> redisHash = new HashMap<>();
-            redisHash.put("type", String.valueOf(item.get("type")));
-            redisHash.put("peer_id", String.valueOf(item.getOrDefault("peerId", "")));
-            redisHash.put("peer_name", String.valueOf(item.getOrDefault("peerName", "")));
-            redisHash.put("peer_avatar", String.valueOf(item.getOrDefault("peerAvatar", "")));
-            redisHash.put("member_count", String.valueOf(item.getOrDefault("memberCount", "0")));
-            redisHash.put("last_msg_content", String.valueOf(item.get("lastMsgContent")));
-            redisHash.put("last_msg_time", String.valueOf(item.get("lastMsgTime")));
-            redisHash.put("last_sender_id", String.valueOf(item.get("lastSenderId")));
-            redisHash.put("unread_count", String.valueOf(unread));
-            redisTemplate.opsForHash().putAll(hashKey, redisHash);
-
-            Object lastTime = item.get("lastMsgTime");
-            if (lastTime instanceof Number) {
-                redisTemplate.opsForZSet().add(SESSION_ZSET + userId, convId, ((Number) lastTime).doubleValue());
+                item.put("unreadCount", 0);
+                item.put("memberCount", 0);
+                item.put("pinned", false);
             }
 
             list.add(item);
         }
-
-        // 从 ZSET 获取已初始化的会话（替代 KEYS 全表扫描）
-        Set<String> feedConvIds = list.stream().map(m -> (String) m.get("conversationId")).collect(java.util.stream.Collectors.toSet());
-        Set<String> zsetConvs = redisTemplate.opsForZSet().reverseRange(SESSION_ZSET + userId, 0, -1);
-        if (zsetConvs != null) {
-            for (String convId : zsetConvs) {
-                if (feedConvIds.contains(convId)) continue;
-
-                String hashKey = SESSION_PREFIX + userId + ":" + convId;
-                Map<Object, Object> hash = redisTemplate.opsForHash().entries(hashKey);
-                if (hash.isEmpty()) continue;
-
-                Map<String, Object> item = new LinkedHashMap<>();
-                item.put("conversationId", convId);
-                item.put("peerId", String.valueOf(hash.getOrDefault("peer_id", "")));
-                item.put("peerName", String.valueOf(hash.getOrDefault("peer_name", "")));
-                item.put("peerAvatar", String.valueOf(hash.getOrDefault("peer_avatar", "")));
-                int type = Integer.parseInt(String.valueOf(hash.getOrDefault("type", "0")));
-                int mc = Integer.parseInt(String.valueOf(hash.getOrDefault("member_count", "-1")));
-                if (type == 1 && mc < 0) {
-                    try {
-                        GroupChat g = groupChatMapper.findById(Long.parseLong(convId.substring(2)));
-                        mc = g != null ? g.getMemberCount() : 0;
-                    } catch (Exception ignored) { mc = 0; }
-                }
-                item.put("type", type);
-                item.put("memberCount", mc);
-                item.put("lastMsgContent", String.valueOf(hash.getOrDefault("last_msg_content", "")));
-                item.put("lastMsgType", "");
-                item.put("lastMsgTime", hash.getOrDefault("last_msg_time", "0"));
-                item.put("lastSenderId", "");
-                item.put("unreadCount", Integer.valueOf(String.valueOf(hash.getOrDefault("unread_count", "0"))));
-                list.add(item);
-            }
-        }
-
-        list.sort((a, b) -> {
-            Object ta = a.get("lastMsgTime"), tb = b.get("lastMsgTime");
-            long la = ta instanceof Number ? ((Number) ta).longValue() : Long.parseLong(String.valueOf(ta));
-            long lb = tb instanceof Number ? ((Number) tb).longValue() : Long.parseLong(String.valueOf(tb));
-            return Long.compare(lb, la);
-        });
-
         return list;
+    }
+
+    public void pinConversation(Long userId, String conversationId, boolean pinned) {
+        String hashKey = SESSION_PREFIX + userId + ":" + conversationId;
+        redisTemplate.opsForHash().put(hashKey, "pinned", pinned ? "1" : "0");
+        if (pinned) {
+            redisTemplate.opsForZSet().add(SESSION_ZSET + userId, conversationId, 9999999999999.0);
+        } else {
+            Object lastTime = redisTemplate.opsForHash().get(hashKey, "last_msg_time");
+            double score = lastTime != null ? Double.parseDouble(String.valueOf(lastTime)) : System.currentTimeMillis();
+            redisTemplate.opsForZSet().add(SESSION_ZSET + userId, conversationId, score);
+        }
     }
 
     // ==================== 已读 ====================
