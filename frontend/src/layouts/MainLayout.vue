@@ -1,4 +1,12 @@
 <template>
+  <!-- 新公告浮动横幅 -->
+  <transition name="slide-down">
+    <div v-if="announcePopup" class="announce-float">
+      <span class="announce-float-icon">📢</span>
+      <span class="announce-float-text">{{ announcePopup }}</span>
+      <el-icon class="announce-float-close" @click="announcePopup = ''"><Close /></el-icon>
+    </div>
+  </transition>
   <div class="app-wrapper">
     <div class="layout">
     <!-- 左侧导航栏 60px -->
@@ -294,6 +302,14 @@ watch(() => route.path, (path) => {
   }
 })
 
+const announcePopup = ref('')
+let announceTimer = null
+const showAnnounceFloat = (content) => {
+  announcePopup.value = content
+  clearTimeout(announceTimer)
+  announceTimer = setTimeout(() => { announcePopup.value = '' }, 30000)
+}
+
 const announceList = ref([])
 const announceCount = ref(0)
 const fetchAnnounceUnread = async () => {
@@ -492,6 +508,7 @@ onMounted(() => {
     }
     if (msg.action === 'event' && msg.data?.type === 'announcement') {
       fetchAnnounceUnread()
+      showAnnounceFloat(msg.data.content)
     }
     if (msg.action === 'new_message') { playMsgSound(); totalUnread.value++ }
   })
@@ -916,4 +933,12 @@ html.dark .ann-pop-item { border-color:#2a2a2a !important; }
 html.dark .ann-pop-content { color:#ccc !important; }
 html.dark .ann-pop-time { color:#777 !important; }
 html.dark .ann-pop-empty { color:#555 !important; }
+.announce-float { display:flex; align-items:center; padding:10px 24px; background:linear-gradient(135deg, #fffbe6, #fff1cc); border-bottom:1px solid #ffd591; color:#8c6a00; font-size:14px; z-index:2000; }
+.announce-float-icon { margin-right:10px; font-size:16px; flex-shrink:0; }
+.announce-float-text { flex:1; overflow:hidden; white-space:nowrap; }
+.announce-float-close { cursor:pointer; flex-shrink:0; margin-left:12px; color:#8c6a00; }
+.slide-down-enter-active, .slide-down-leave-active { transition:all .3s ease; }
+.slide-down-enter-from, .slide-down-leave-to { opacity:0; transform:translateY(-100%); }
+html.dark .announce-float { background:linear-gradient(135deg, #3d3520, #4a3a18); border-color:#5a4a20; color:#e6c85a; }
+html.dark .announce-float-close { color:#e6c85a; }
 </style>
