@@ -116,8 +116,8 @@
                   <span v-if="msg.status === 'failed'" class="msg-icon failed" @click="retrySend(msg)"><el-icon :size="14"><WarningFilled /></el-icon></span>
                 </div>
                 <!-- 图片 -->
-                <div v-else-if="msg.messageType === 'image'" class="bubble media-card">
-                  <el-image :src="resolveUrl(msg.content)" :preview-src-list="[resolveUrl(msg.content)]" fit="cover" style="max-width:240px;max-height:240px;border-radius:6px" />
+                <div v-else-if="msg.messageType === 'image'" class="bubble media-card" style="width:240px;height:180px">
+                  <el-image :src="resolveUrl(msg.content)" :preview-src-list="[resolveUrl(msg.content)]" fit="cover" style="width:100%;height:100%;border-radius:6px" />
                 </div>
                 <!-- 视频 -->
                 <div v-else-if="msg.messageType === 'video'" class="bubble media-card">
