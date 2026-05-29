@@ -4,7 +4,7 @@
     <div v-if="announcePopup" class="announce-topbar">
       <div class="announce-topbar-inner">
         <span class="announce-topbar-icon">📢</span>
-        <span class="announce-topbar-text">{{ announcePopup }}</span>
+        <span class="announce-topbar-text"><span>{{ announcePopup }}</span></span>
         <span class="announce-topbar-close" @click="announcePopup = ''">✕</span>
       </div>
     </div>
@@ -935,14 +935,16 @@ html.dark .ann-pop-item { border-color:#2a2a2a !important; }
 html.dark .ann-pop-content { color:#ccc !important; }
 html.dark .ann-pop-time { color:#777 !important; }
 html.dark .ann-pop-empty { color:#555 !important; }
-.announce-topbar { position:fixed; top:0; left:0; right:0; z-index:9999; background:#fffbe6; border-bottom:1px solid #ffd591; }
-.announce-topbar-inner { display:flex; align-items:center; height:32px; padding:0 20px; }
-.announce-topbar-icon { flex-shrink:0; margin-right:8px; }
-.announce-topbar-text { flex:1; color:#8c6a00; font-size:13px; text-align:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-.announce-topbar-close { flex-shrink:0; cursor:pointer; margin-left:12px; color:#8c6a00; font-size:14px; opacity:0.5; }
+.announce-topbar { position:fixed; top:0; left:50%; transform:translateX(-50%); width:60%; z-index:9999; background:#fffbe6; border:1px solid #ffd591; border-top:none; border-radius:0 0 8px 8px; overflow:hidden; }
+.announce-topbar-inner { display:flex; align-items:center; height:30px; padding:0 12px; }
+.announce-topbar-icon { flex-shrink:0; margin-right:8px; font-size:14px; }
+.announce-topbar-text { flex:1; color:#8c6a00; font-size:12px; white-space:nowrap; overflow:hidden; }
+.announce-topbar-text span { display:inline-block; animation:ann-marquee 15s linear infinite; padding-right:40px; }
+.announce-topbar-close { flex-shrink:0; cursor:pointer; margin-left:8px; font-size:12px; opacity:0.5; }
 .announce-topbar-close:hover { opacity:1; }
+@keyframes ann-marquee { 0% { transform:translateX(0); } 100% { transform:translateX(-100%); } }
 .slide-down-enter-active, .slide-down-leave-active { transition:all .3s ease; }
-.slide-down-enter-from, .slide-down-leave-to { transform:translateY(-100%); opacity:0; }
+.slide-down-enter-from, .slide-down-leave-to { transform:translateX(-50%) translateY(-100%); opacity:0; }
 html.dark .announce-topbar { background:#3d3520; border-color:#5a4a20; }
 html.dark .announce-topbar-text { color:#e6c85a; }
 html.dark .announce-topbar-close { color:#e6c85a; }
