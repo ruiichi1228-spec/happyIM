@@ -38,3 +38,9 @@ logging:
   level:
     root: INFO
     com.happyim: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
