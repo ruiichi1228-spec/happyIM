@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,7 +84,7 @@ public class MomentService {
             q.addCriteria(Criteria.where("userId").is(filterUserId));
         } else {
             List<Map<String, Object>> friends = client.getFriends(userId);
-            List<Long> friendIds = new ArrayList<>(friends.stream().map(f -> toLong(f.get("friendId"))).filter(Objects::nonNull).toList());
+            List<Long> friendIds = new ArrayList<>(friends.stream().map(f -> toLong(f.get("userId"))).filter(Objects::nonNull).toList());
             friendIds.add(userId);
             q.addCriteria(Criteria.where("userId").in(friendIds));
         }
