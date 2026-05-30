@@ -487,4 +487,13 @@ onMounted(() => {
 .publish-img-item { position:relative; width:80px; height:80px; }
 .publish-thumb { width:100%; height:100%; object-fit:cover; border-radius:6px; }
 .publish-img-del { position:absolute; top:-6px; right:-6px; width:20px; height:20px; background:#fa5151; color:#fff; border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+.profile-card-pop { display:flex; flex-direction:column; align-items:center; }
+.profile-pop-name { font-size:16px; font-weight:600; color:#333; margin-top:10px; }
+.profile-pop-gender { font-size:13px; color:#999; margin-top:2px; }
+.profile-pop-sig { font-size:13px; color:#666; margin-top:6px; padding:6px 12px; background:#f5f5f5; border-radius:6px; }
+.profile-pop-section { width:100%; margin-top:14px; text-align:left; }
+.profile-pop-label { font-size:12px; color:#999; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid #f0f0f0; }
+.profile-pop-row { display:flex; gap:8px; font-size:13px; color:#666; padding:3px 0; }
+.profile-pop-desc { font-size:13px; color:#666; line-height:1.6; }
 </style>
