@@ -86,7 +86,6 @@
                     <div class="profile-row"><span>邮箱：</span><span>{{ userInfoData.email }}</span></div>
                     <div class="profile-row"><span>注册时间：</span><span>{{ userInfoData.createdTime }}</span></div>
                     <div class="profile-row"><span>最近登陆：</span><span>{{ userInfoData.lastLoginTime }}</span></div>
-                    <div class="profile-row"><span>最近IP：</span><span>{{ userInfoData.lastLoginIp }}</span></div>
                   </div>
                   <div class="profile-section" v-if="userInfoData.description">
                     <div class="profile-label">其它说明</div>
@@ -520,7 +519,6 @@
           <div class="profile-row" v-if="memberDetail?.email"><span>邮箱：</span><span>{{ memberDetail.email }}</span></div>
           <div class="profile-row" v-if="memberDetail?.createdTime"><span>注册时间：</span><span>{{ memberDetail.createdTime }}</span></div>
           <div class="profile-row" v-if="memberDetail?.lastLoginTime"><span>最近登陆：</span><span>{{ memberDetail.lastLoginTime }}</span></div>
-          <div class="profile-row" v-if="memberDetail?.lastLoginIp"><span>最近IP：</span><span>{{ memberDetail.lastLoginIp }}</span></div>
           <div class="profile-row" v-if="memberInfo?.groupNickname"><span>群昵称：</span><span>{{ memberInfo.groupNickname }}</span></div>
           <div class="profile-row" v-if="memberInfo?.role"><span>角色：</span><span>{{ memberInfo.role === 1 ? '群主' : memberInfo.role === 2 ? '管理员' : '成员' }}</span></div>
         </div>

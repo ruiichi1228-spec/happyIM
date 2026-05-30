@@ -273,7 +273,6 @@
           <div class="profile-row"><span>邮箱：</span><span>{{ memberDetail.email }}</span></div>
           <div class="profile-row"><span>注册时间：</span><span>{{ memberDetail.createdTime }}</span></div>
           <div class="profile-row"><span>最近登陆：</span><span>{{ memberDetail.lastLoginTime }}</span></div>
-          <div class="profile-row"><span>最近IP：</span><span>{{ memberDetail.lastLoginIp }}</span></div>
           <div class="profile-row" v-if="memberProfile?.groupNickname"><span>群昵称：</span><span>{{ memberProfile.groupNickname }}</span></div>
           <div class="profile-row" v-if="memberProfile?.nickname !== memberDetail.nickname"><span>原名：</span><span>{{ memberProfile.nickname }}</span></div>
         </div>
