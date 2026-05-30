@@ -1,11 +1,13 @@
 package com.happyim.chatws;
 
 import com.happyim.common.security.JwtUtil;
+import com.happyim.contracts.feign.UserFeignClient;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -18,6 +20,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @EnableWebSocket
 @ComponentScan(basePackages = "com.happyim.chatws")
 @Import(JwtUtil.class)
+@EnableFeignClients(clients = {UserFeignClient.class})
 public class HappyIMWsApplication {
     public static void main(String[] args) {
         SpringApplication.run(HappyIMWsApplication.class, args);

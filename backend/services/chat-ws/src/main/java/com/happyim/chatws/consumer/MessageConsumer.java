@@ -1,12 +1,12 @@
 package com.happyim.chatws.consumer;
 
 import com.happyim.chatws.handler.ChatWebSocketHandler;
+import com.happyim.contracts.feign.UserFeignClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,13 +18,13 @@ public class MessageConsumer {
     private static final Logger log = LoggerFactory.getLogger(MessageConsumer.class);
 
     private final ChatWebSocketHandler wsHandler;
-    private final RestTemplate restTemplate;
+    private final UserFeignClient feign;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public MessageConsumer(ChatWebSocketHandler wsHandler, RestTemplate restTemplate,
+    public MessageConsumer(ChatWebSocketHandler wsHandler, UserFeignClient feign,
                            RedisTemplate<String, String> redisTemplate) {
         this.wsHandler = wsHandler;
-        this.restTemplate = restTemplate;
+        this.feign = feign;
         this.redisTemplate = redisTemplate;
     }
 
@@ -145,13 +145,11 @@ public class MessageConsumer {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private String getSenderName(Long userId) {
         try {
-            Map<String, Object> profile = restTemplate.getForObject(
-                    "http://localhost:8101/api/users/" + userId + "/profile", Map.class);
-            if (profile != null && profile.get("code") instanceof Integer code && code == 0) {
-                Map<String, Object> data = (Map<String, Object>) profile.get("data");
+            Map<String, Object> res = feign.getUserProfile(userId);
+            if (res != null && res.get("code") instanceof Integer code && code == 0) {
+                Map<String, Object> data = (Map<String, Object>) res.get("data");
                 if (data != null) {
                     String nickname = (String) data.get("nickname");
                     return nickname != null ? nickname : (String) data.getOrDefault("username", "");
