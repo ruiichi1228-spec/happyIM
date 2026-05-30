@@ -389,7 +389,7 @@ public class MessageService {
                     if (r != null) routes.add(r);
                 }
             } else {
-                String[] parts = conversationId.substring(2).split("_");
+                String[] parts = convId.substring(2).split("_");
                 for (String p : parts) {
                     String r = redisTemplate.opsForValue().get("router:user:" + p);
                     if (r != null) routes.add(r);
