@@ -99,7 +99,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             sessions.remove(userId);
             currentConversations.remove(userId);
             redisTemplate.delete("online:user:" + userId);
-            redisTemplate.delete("router:user:" + userId);
+            // 不删路由键，只覆盖。断连期间消息仍可路由到活跃实例
             log.info("WS 连接断开: userId={}", userId);
         }
     }
