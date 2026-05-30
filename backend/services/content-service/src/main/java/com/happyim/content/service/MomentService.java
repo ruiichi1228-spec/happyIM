@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,18 +24,18 @@ public class MomentService {
     private final MongoTemplate mongoTemplate;
     private final UserServiceClient client;
     private final RabbitTemplate rabbitTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${happyim.mq.exchange}")
     private String exchangeName;
 
-    @Value("${happyim.mq.routing-key}")
-    private String routingKey;
-
     public MomentService(MongoTemplate mongoTemplate, UserServiceClient client,
-                         RabbitTemplate rabbitTemplate) {
+                         RabbitTemplate rabbitTemplate,
+                         RedisTemplate<String, String> redisTemplate) {
         this.mongoTemplate = mongoTemplate;
         this.client = client;
         this.rabbitTemplate = rabbitTemplate;
+        this.redisTemplate = redisTemplate;
     }
 
     private String nick(Map<String, Object> u) { return (String) u.getOrDefault("nickname", ""); }
@@ -266,11 +267,13 @@ public class MomentService {
 
     private void notifyMomentEvent(Long targetUserId) {
         try {
+            String route = redisTemplate.opsForValue().get("router:user:" + targetUserId);
+            if (route == null) return;
             Map<String, Object> msg = Map.of(
                 "type", "moment_notify",
                 "targetUserId", targetUserId
             );
-            rabbitTemplate.convertAndSend(exchangeName, routingKey, msg);
+            rabbitTemplate.convertAndSend(exchangeName, route, msg);
         } catch (Exception e) {
             log.warn("推送朋友圈事件失败: targetUserId={}, {}", targetUserId, e.getMessage());
         }

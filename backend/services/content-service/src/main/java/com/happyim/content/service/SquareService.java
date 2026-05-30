@@ -33,9 +33,6 @@ public class SquareService {
     @Value("${happyim.mq.exchange}")
     private String exchangeName;
 
-    @Value("${happyim.mq.routing-key}")
-    private String routingKey;
-
     public SquareService(MongoTemplate mongoTemplate, UserMapper userMapper,
                          RabbitTemplate rabbitTemplate, StringRedisTemplate redisTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -309,11 +306,13 @@ public class SquareService {
 
         // WS 推送
         try {
+            String route = redisTemplate.opsForValue().get("router:user:" + userId);
+            if (route == null) return;
             Map<String, Object> msg = Map.of(
                 "type", "square_notify",
                 "targetUserId", userId
             );
-            rabbitTemplate.convertAndSend(exchangeName, routingKey, msg);
+            rabbitTemplate.convertAndSend(exchangeName, route, msg);
         } catch (Exception e) {
             log.warn("推送广场事件失败: {}", e.getMessage());
         }
