@@ -99,7 +99,7 @@
           </div>
           <div class="request-actions" v-if="req.status === 0">
             <el-button type="primary" size="small" @click="openAcceptDialog(req)">接受</el-button>
-            <el-button size="small" @click="friendRequests = friendRequests.filter(r => r.id !== req.id)">忽略</el-button>
+            <el-button size="small" @click="rejectRequest(req)">忽略</el-button>
           </div>
           <el-tag v-else type="success" size="small">已添加</el-tag>
         </div>
@@ -447,6 +447,9 @@ const handleSendRequest = async () => {
   try { await request.post('/friends/request', { toUserId: requestForm.value.toUserId, message: requestForm.value.message }); ElMessage.success('已发送'); requestDialogVisible.value = false } catch (e) { ElMessage.error(e.response?.data?.message || '发送失败') }
 }
 const openAcceptDialog = (req) => { acceptForm.value = { requestId: req.id, remark: '' }; acceptDialogVisible.value = true }
+const rejectRequest = async (req) => {
+  try { await request.post(`/friends/requests/${req.id}/reject`); friendRequests.value = friendRequests.value.filter(r => r.id !== req.id); fetchPendingCount(); ElMessage.success('已忽略') } catch(e) { ElMessage.error('操作失败') }
+}
 const handleAcceptRequest = async () => {
   try { await request.post(`/friends/requests/${acceptForm.value.requestId}/accept`); ElMessage.success('已添加'); acceptDialogVisible.value = false; fetchRequests(); fetchFriends() } catch (e) { ElMessage.error('操作失败') }
 }
