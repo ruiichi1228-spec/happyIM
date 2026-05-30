@@ -150,7 +150,7 @@ const handleLogin = async () => {
   font-size: 26px; font-weight: 700; color: #fff;
   box-shadow: 0 4px 12px rgba(198, 86, 26, 0.25);
 }
-.subtitle { font-size:13px; color:#999; margin-top:-8px; margin-bottom:0; text-align:center; }
+.subtitle { font-size:13px; color:#999; margin-top:8px; margin-bottom:0; text-align:center; }
 .title { font-size: 20px; color: #1a1a1a; font-weight: 500; }
 
 .input-group { margin-bottom: 12px; }

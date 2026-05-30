@@ -1,13 +1,7 @@
 <template>
   <div class="auth-wrapper">
     <div class="rain-container">
-      <div v-for="i in 80" :key="i" class="raindrop" :style="{
-        left: Math.random()*100+'%',
-        width: (2+Math.random()*5)+'px', height: (3+Math.random()*6)+'px',
-        animationDuration: (6+Math.random()*10)+'s',
-        animationDelay: Math.random()*12+'s',
-        opacity: 0.3+Math.random()*0.4
-      }" />
+      <div v-for="d in raindrops" :key="d.id" class="raindrop" :style="d.style" />
     </div>
     <div class="auth-card">
       <div class="logo-area">
@@ -77,6 +71,18 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import request, { saveAuth } from '@/utils/request'
 import { ElMessage } from 'element-plus'
+
+const raindrops = Array.from({ length: 80 }, (_, i) => ({
+  id: i,
+  style: {
+    left: Math.random()*100+'%',
+    width: (2+Math.random()*5)+'px',
+    height: (3+Math.random()*6)+'px',
+    animationDuration: (6+Math.random()*10)+'s',
+    animationDelay: Math.random()*12+'s',
+    opacity: 0.3+Math.random()*0.4
+  }
+}))
 
 const router = useRouter()
 
