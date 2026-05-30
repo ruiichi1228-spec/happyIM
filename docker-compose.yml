@@ -105,6 +105,7 @@ services:
     environment:
       SW_STORAGE: h2
       SW_HEALTH_CHECKER: default
+      JAVA_OPTS: -Xms256m -Xmx512m
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/12800"]
       interval: 10s
