@@ -83,6 +83,8 @@
           </div>
         </div>
 
+        <p class="agreement-check"><input type="checkbox" v-model="agreeTerms" /> 我已阅读并同意 <a @click.stop="showTerms=true">《用户协议》和《隐私政策》</a></p>
+
         <button class="submit-btn" :disabled="loading" @click="handleRegister">
           {{ loading ? "注册中..." : "注 册" }}
         </button>
@@ -95,7 +97,19 @@
         </transition>
       </div>
 
-      <div class="footer-links">
+      <!-- 用户协议弹窗 -->
+    <el-dialog v-model="showTerms" title="用户协议与隐私政策" width="520px" align-center>
+      <div class="terms-content">
+        <p>欢迎使用 HappyIM。</p>
+        <p>注册或使用本服务即表示您同意以下条款：</p>
+        <p><b>1. 账号安全</b>：您有责任保护账号和密码的安全。</p>
+        <p><b>2. 隐私保护</b>：我们不会向第三方泄露您的个人信息，除非法律法规要求。</p>
+        <p><b>3. 使用规范</b>：禁止发布违法、违规内容，禁止骚扰他人。</p>
+        <p><b>4. 免责声明</b>：本服务按"现状"提供，开发者不承担因使用本服务产生的任何损失。</p>
+      </div>
+    </el-dialog>
+
+    <div class="footer-links">
         <span @click="$router.push('/login')">已有账号？返回登录</span>
       </div>
     </div>
@@ -140,6 +154,8 @@ const email = ref('')
 const code = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const agreeTerms = ref(false)
+const showTerms = ref(false)
 const error = ref('')
 const success = ref('')
 const loading = ref(false)
@@ -175,7 +191,8 @@ const handleRegister = async () => {
   error.value = ''
   success.value = ''
 
-  if (!username.value || !nickname.value || !email.value || !code.value || !password.value) {
+  if (!agreeTerms.value) { error.value='请先同意用户协议'; return }
+    if (!username.value || !nickname.value || !email.value || !code.value || !password.value) {
     error.value = '请填写完整的注册信息'
     return
   }
@@ -428,6 +445,16 @@ const startCountdown = () => {
   margin-top: 12px;
   text-align: center;
 }
+
+.agreement-text { font-size:12px; color:#999; text-align:center; margin-top:-8px; }
+.agreement-text a { color:#576b95; cursor:pointer; }
+.agreement-text a:hover { text-decoration:underline; }
+.agreement-check { font-size:12px; color:#888; display:flex; align-items:center; gap:4px; margin:10px 0; }
+.agreement-check input { accent-color:#07c160; }
+.agreement-check a { color:#576b95; cursor:pointer; }
+.agreement-check a:hover { text-decoration:underline; }
+.terms-content { font-size:13px; line-height:1.8; color:#555; }
+.terms-content p { margin-bottom:8px; }
 
 .footer-links {
   margin-top: 22px;
