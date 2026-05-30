@@ -297,14 +297,12 @@ public class MessageService {
 
         try {
             Map<String, Object> mqPayload = new LinkedHashMap<>(doc);
+            Set<String> routes = new HashSet<>();
             if (convType == 1) {
                 long groupId = Long.parseLong(conversationId.substring(2));
                 List<Long> memberIds = groupMemberMapper.findByGroupId(groupId).stream()
                         .map(GroupMember::getUserId).toList();
                 mqPayload.put("members", memberIds);
-            }
-            Set<String> routes = new HashSet<>();
-            if (convType == 1) {
                 for (Long uid : memberIds) {
                     String r = redisTemplate.opsForValue().get("router:user:" + uid);
                     if (r != null) routes.add(r);
@@ -380,14 +378,12 @@ public class MessageService {
             mqPayload.put("messageType", "recall");
             mqPayload.put("content", "消息已被撤回");
             mqPayload.put("createdAt", System.currentTimeMillis());
+            Set<String> routes = new HashSet<>();
             if (convType == 1) {
                 long groupId = Long.parseLong(convId.substring(2));
                 List<Long> memberIds = groupMemberMapper.findByGroupId(groupId).stream()
                         .map(GroupMember::getUserId).toList();
                 mqPayload.put("members", memberIds);
-            }
-            Set<String> routes = new HashSet<>();
-            if (convType == 1) {
                 for (Long uid : memberIds) {
                     String r = redisTemplate.opsForValue().get("router:user:" + uid);
                     if (r != null) routes.add(r);
