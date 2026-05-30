@@ -163,7 +163,7 @@
                 <!-- 撤回 -->
                 <div v-else-if="msg.messageType === 'recall'" class="bubble recall-bubble">消息已被撤回</div>
               </div>
-              <el-avatar v-if="msg.fromUserId === myUserId" :src="myAvatar" :size="34" shape="square">
+              <el-avatar v-if="msg.fromUserId === myUserId" :src="myAvatar || userCache.get(myUserId)?.avatarUrl" :size="34" shape="square">
                 {{ myName?.charAt(0) }}
               </el-avatar>
             </div>
@@ -1240,6 +1240,8 @@ watch(historyVisible, (v) => { if (v) { historyTab.value = 'text'; historyKeywor
 onMounted(() => {
   const info = JSON.parse(localStorage.getItem('user_info')||'{}')
   myUserId.value = info.userId || 0; myName.value = info.nickname || info.username || ''; myAvatar.value = info.avatarUrl || ''
+  // 兜底：确保 userCache 有自己
+  userCache.set(info.userId, { nickname: info.nickname, avatarUrl: info.avatarUrl })
   fetchSessions(); fetchFriends(); connect()
 })
 </script>
