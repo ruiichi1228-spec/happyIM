@@ -165,18 +165,14 @@ public class MessageService {
             if (convType == 1) {
                 long groupId = Long.parseLong(conversationId.substring(2));
                 List<Long> memberIds = groupMemberMapper.findByGroupId(groupId).stream()
-                        .map(GroupMember::getUserId).toList();
+                        .map(GroupMember::getUserId).filter(uid -> !uid.equals(fromUserId)).toList();
                 mqPayload.put("members", memberIds);
-                for (Long uid : memberIds) {
-                    String route = redisTemplate.opsForValue().get("router:user:" + uid);
-                    if (route != null) targetRoutes.add(route);
-                }
+                for (Long uid : memberIds) targetRoutes.add("ws.ws-" + (int)(uid % 2 + 1));
             } else {
                 String[] parts = conversationId.substring(2).split("_");
-                for (String p : parts) {
-                    String route = redisTemplate.opsForValue().get("router:user:" + p);
-                    if (route != null) targetRoutes.add(route);
-                }
+                long a = Long.parseLong(parts[0]), b = Long.parseLong(parts[1]);
+                long receiver = fromUserId == a ? b : a;
+                targetRoutes.add("ws.ws-" + (int)(receiver % 2 + 1));
             }
 
             for (String route : targetRoutes) {
@@ -297,24 +293,19 @@ public class MessageService {
 
         try {
             Map<String, Object> mqPayload = new LinkedHashMap<>(doc);
+            List<Long> memberIds=null;
             if (convType == 1) {
                 long groupId = Long.parseLong(conversationId.substring(2));
-                List<Long> memberIds = groupMemberMapper.findByGroupId(groupId).stream()
+                memberIds = groupMemberMapper.findByGroupId(groupId).stream()
                         .map(GroupMember::getUserId).toList();
                 mqPayload.put("members", memberIds);
             }
             Set<String> routes = new HashSet<>();
             if (convType == 1) {
-                for (Long uid : memberIds) {
-                    String r = redisTemplate.opsForValue().get("router:user:" + uid);
-                    if (r != null) routes.add(r);
-                }
+                for (Long uid : memberIds) routes.add("ws.ws-" + (int)(uid % 2 + 1));
             } else {
                 String[] parts = conversationId.substring(2).split("_");
-                for (String p : parts) {
-                    String r = redisTemplate.opsForValue().get("router:user:" + p);
-                    if (r != null) routes.add(r);
-                }
+                for (String p : parts) routes.add("ws.ws-" + (int)(Long.parseLong(p) % 2 + 1));
             }
             for (String r : routes) rabbitTemplate.convertAndSend(exchange, r, mqPayload);
         } catch (Exception e) {
@@ -380,24 +371,19 @@ public class MessageService {
             mqPayload.put("messageType", "recall");
             mqPayload.put("content", "消息已被撤回");
             mqPayload.put("createdAt", System.currentTimeMillis());
+            List<Long> memberIds=null;
             if (convType == 1) {
                 long groupId = Long.parseLong(convId.substring(2));
-                List<Long> memberIds = groupMemberMapper.findByGroupId(groupId).stream()
+                memberIds = groupMemberMapper.findByGroupId(groupId).stream()
                         .map(GroupMember::getUserId).toList();
                 mqPayload.put("members", memberIds);
             }
             Set<String> routes = new HashSet<>();
             if (convType == 1) {
-                for (Long uid : memberIds) {
-                    String r = redisTemplate.opsForValue().get("router:user:" + uid);
-                    if (r != null) routes.add(r);
-                }
+                for (Long uid : memberIds) routes.add("ws.ws-" + (int)(uid % 2 + 1));
             } else {
-                String[] parts = conversationId.substring(2).split("_");
-                for (String p : parts) {
-                    String r = redisTemplate.opsForValue().get("router:user:" + p);
-                    if (r != null) routes.add(r);
-                }
+                String[] parts = convId.substring(2).split("_");
+                for (String p : parts) routes.add("ws.ws-" + (int)(Long.parseLong(p) % 2 + 1));
             }
             for (String r : routes) rabbitTemplate.convertAndSend(exchange, r, mqPayload);
         } catch (Exception e) {
