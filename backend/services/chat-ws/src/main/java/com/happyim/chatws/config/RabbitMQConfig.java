@@ -82,6 +82,8 @@ public class RabbitMQConfig {
         factory.setMessageConverter(messageConverter);
         factory.setConcurrentConsumers(2);
         factory.setMaxConcurrentConsumers(5);
+        factory.setDefaultRequeueRejected(true);
+        factory.setPrefetchCount(1);
         return factory;
     }
 }

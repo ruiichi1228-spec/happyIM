@@ -1,5 +1,8 @@
 package com.happyim.common.config;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +12,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.index.Index;
 
+import java.util.concurrent.TimeUnit;
+
 @Configuration
 public class MongoConfig {
 
@@ -17,7 +22,20 @@ public class MongoConfig {
 
     @Bean
     public MongoDatabaseFactory mongoDatabaseFactory() {
-        return new SimpleMongoClientDatabaseFactory(mongoUri);
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(mongoUri))
+                .applyToSocketSettings(b -> b
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .readTimeout(30, TimeUnit.SECONDS))
+                .applyToConnectionPoolSettings(b -> b
+                        .maxSize(20)
+                        .minSize(2)
+                        .maxWaitTime(5, TimeUnit.SECONDS))
+                .applyToServerSettings(b -> b
+                        .heartbeatFrequency(10, TimeUnit.SECONDS)
+                        .minHeartbeatFrequency(2, TimeUnit.SECONDS))
+                .build();
+        return new SimpleMongoClientDatabaseFactory(MongoClients.create(settings), "happyim");
     }
 
     @Bean
