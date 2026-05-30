@@ -47,7 +47,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             sessions.put(userId, session);
 
             redisTemplate.opsForValue().set("online:user:" + userId, "1", Duration.ofSeconds(60));
-            redisTemplate.opsForValue().set("router:user:" + userId, rabbitMQConfig.routingKey());
+            redisTemplate.opsForValue().set("router:user:" + userId, rabbitMQConfig.routingKey(), Duration.ofSeconds(30));
 
             log.info("WS 连接建立: userId={}, route={}", userId, rabbitMQConfig.routingKey());
             try { rabbitTemplate.convertAndSend("happyim.exchange", "notify.online", Map.of("type", "friend_online", "userId", userId)); } catch(Exception ignored) {}
@@ -68,6 +68,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         switch (action) {
             case "ping" -> {
                 redisTemplate.expire("online:user:" + userId, Duration.ofSeconds(60));
+                redisTemplate.expire("router:user:" + userId, Duration.ofSeconds(30));
                 sendMessageSafe(session, Map.of("action", "pong"));
             }
             case "enter_conversation" -> {
