@@ -28,7 +28,7 @@ public class MessageConsumer {
         this.redisTemplate = redisTemplate;
     }
 
-    @RabbitListener(queues = "${happyim.mq.queue}")
+    @RabbitListener(queues = "#{'${happyim.mq.queue-prefix}' + '${happyim.mq.instance-id}'}")
     public void onMessage(Map<String, Object> msg) {
         try {
             String type = (String) msg.get("type");
