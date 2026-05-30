@@ -179,7 +179,6 @@ public class MessageService {
                 }
             }
 
-            if (targetRoutes.isEmpty()) targetRoutes.add(routingKey); // fallback
             for (String route : targetRoutes) {
                 rabbitTemplate.convertAndSend(exchange, route, mqPayload);
             }
@@ -304,7 +303,20 @@ public class MessageService {
                         .map(GroupMember::getUserId).toList();
                 mqPayload.put("members", memberIds);
             }
-            rabbitTemplate.convertAndSend(exchange, routingKey, mqPayload);
+            Set<String> routes = new HashSet<>();
+            if (convType == 1) {
+                for (Long uid : memberIds) {
+                    String r = redisTemplate.opsForValue().get("router:user:" + uid);
+                    if (r != null) routes.add(r);
+                }
+            } else {
+                String[] parts = conversationId.substring(2).split("_");
+                for (String p : parts) {
+                    String r = redisTemplate.opsForValue().get("router:user:" + p);
+                    if (r != null) routes.add(r);
+                }
+            }
+            for (String r : routes) rabbitTemplate.convertAndSend(exchange, r, mqPayload);
         } catch (Exception e) {
             log.warn("系统消息MQ投递失败: {}", e.getMessage());
         }
@@ -374,7 +386,20 @@ public class MessageService {
                         .map(GroupMember::getUserId).toList();
                 mqPayload.put("members", memberIds);
             }
-            rabbitTemplate.convertAndSend(exchange, routingKey, mqPayload);
+            Set<String> routes = new HashSet<>();
+            if (convType == 1) {
+                for (Long uid : memberIds) {
+                    String r = redisTemplate.opsForValue().get("router:user:" + uid);
+                    if (r != null) routes.add(r);
+                }
+            } else {
+                String[] parts = conversationId.substring(2).split("_");
+                for (String p : parts) {
+                    String r = redisTemplate.opsForValue().get("router:user:" + p);
+                    if (r != null) routes.add(r);
+                }
+            }
+            for (String r : routes) rabbitTemplate.convertAndSend(exchange, r, mqPayload);
         } catch (Exception e) {
             log.warn("撤回MQ投递失败: {}", e.getMessage());
         }

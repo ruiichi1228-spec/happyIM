@@ -44,12 +44,6 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(wsQueue).to(chatExchange).with(routingKey());
     }
 
-    @Bean
-    public Binding wsChatFallbackBinding(Queue wsQueue, TopicExchange chatExchange) {
-        return BindingBuilder.bind(wsQueue).to(chatExchange).with("chat.message");
-    }
-
-    @Bean
     public Binding wsMomentBinding(Queue wsQueue, TopicExchange chatExchange) {
         return BindingBuilder.bind(wsQueue).to(chatExchange).with("notify.moment");
     }
