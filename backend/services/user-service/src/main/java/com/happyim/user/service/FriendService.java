@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,21 +28,21 @@ public class FriendService {
     private final BlacklistMapper blacklistMapper;
     private final UserMapper userMapper;
     private final RabbitTemplate rabbitTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${happyim.mq.exchange}")
     private String exchangeName;
 
-    @Value("${happyim.mq.routing-key}")
-    private String routingKey;
-
     public FriendService(FriendRequestMapper friendRequestMapper, FriendMapper friendMapper,
                          BlacklistMapper blacklistMapper, UserMapper userMapper,
-                         RabbitTemplate rabbitTemplate) {
+                         RabbitTemplate rabbitTemplate,
+                         RedisTemplate<String, String> redisTemplate) {
         this.friendRequestMapper = friendRequestMapper;
         this.friendMapper = friendMapper;
         this.blacklistMapper = blacklistMapper;
         this.userMapper = userMapper;
         this.rabbitTemplate = rabbitTemplate;
+        this.redisTemplate = redisTemplate;
     }
 
     private void sendSystemMessage(String conversationId, int convType, String content, String subType, String msgType) {
@@ -313,11 +314,13 @@ public class FriendService {
 
     private void notifyFriendEvent(Long targetUserId) {
         try {
+            String route = redisTemplate.opsForValue().get("router:user:" + targetUserId);
+            if (route == null) return;
             Map<String, Object> msg = Map.of(
                 "type", "friend_notify",
                 "targetUserId", targetUserId
             );
-            rabbitTemplate.convertAndSend(exchangeName, routingKey, msg);
+            rabbitTemplate.convertAndSend(exchangeName, route, msg);
         } catch (Exception e) {
             log.warn("推送好友事件失败: targetUserId={}, {}", targetUserId, e.getMessage());
         }
