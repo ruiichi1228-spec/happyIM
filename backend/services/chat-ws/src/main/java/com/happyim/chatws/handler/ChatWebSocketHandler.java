@@ -1,6 +1,7 @@
 package com.happyim.chatws.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.happyim.chatws.config.RabbitMQConfig;
 import com.happyim.common.security.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +27,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final RedisTemplate<String, String> redisTemplate;
     private final RabbitTemplate rabbitTemplate;
     private final JwtUtil jwtUtil;
+    private final RabbitMQConfig rabbitMQConfig;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ChatWebSocketHandler(RedisTemplate<String, String> redisTemplate,
-                                RabbitTemplate rabbitTemplate, JwtUtil jwtUtil) {
+                                RabbitTemplate rabbitTemplate, JwtUtil jwtUtil,
+                                RabbitMQConfig rabbitMQConfig) {
         this.redisTemplate = redisTemplate;
         this.rabbitTemplate = rabbitTemplate;
         this.jwtUtil = jwtUtil;
+        this.rabbitMQConfig = rabbitMQConfig;
     }
 
     @Override
@@ -43,9 +47,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             sessions.put(userId, session);
 
             redisTemplate.opsForValue().set("online:user:" + userId, "1", Duration.ofSeconds(60));
-            redisTemplate.opsForValue().set("router:user:" + userId, "ws-1");
+            redisTemplate.opsForValue().set("router:user:" + userId, rabbitMQConfig.routingKey());
 
-            log.info("WS 连接建立: userId={}", userId);
+            log.info("WS 连接建立: userId={}, route={}", userId, rabbitMQConfig.routingKey());
             try { rabbitTemplate.convertAndSend("happyim.exchange", "notify.online", Map.of("type", "friend_online", "userId", userId)); } catch(Exception ignored) {}
         } catch (Exception e) {
             session.close(CloseStatus.BAD_DATA);

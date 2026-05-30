@@ -23,8 +23,9 @@ spring:
 happyim:
   mq:
     exchange: happyim.exchange
-    queue: chat:ws:ws-1
-    routing-key: chat.message
+    queue-prefix: chat:ws:ws-
+    routing-key-prefix: ws.ws-
+    instance-id: ${WS_INSTANCE_ID:1}
 
 server:
   port: 8081

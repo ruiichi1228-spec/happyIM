@@ -157,16 +157,32 @@ public class MessageService {
             }
         }
 
-        // 投递 MQ
+        // 投递 MQ — 多实例路由
         try {
             Map<String, Object> mqPayload = new LinkedHashMap<>(msgDoc);
+            Set<String> targetRoutes = new HashSet<>();
+
             if (convType == 1) {
                 long groupId = Long.parseLong(conversationId.substring(2));
                 List<Long> memberIds = groupMemberMapper.findByGroupId(groupId).stream()
                         .map(GroupMember::getUserId).toList();
                 mqPayload.put("members", memberIds);
+                for (Long uid : memberIds) {
+                    String route = redisTemplate.opsForValue().get("router:user:" + uid);
+                    if (route != null) targetRoutes.add(route);
+                }
+            } else {
+                String[] parts = conversationId.substring(2).split("_");
+                for (String p : parts) {
+                    String route = redisTemplate.opsForValue().get("router:user:" + p);
+                    if (route != null) targetRoutes.add(route);
+                }
             }
-            rabbitTemplate.convertAndSend(exchange, routingKey, mqPayload);
+
+            if (targetRoutes.isEmpty()) targetRoutes.add(routingKey); // fallback
+            for (String route : targetRoutes) {
+                rabbitTemplate.convertAndSend(exchange, route, mqPayload);
+            }
         } catch (Exception e) {
             log.warn("MQ投递失败: {}", e.getMessage());
         }

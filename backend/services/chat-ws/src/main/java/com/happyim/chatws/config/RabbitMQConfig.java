@@ -17,11 +17,17 @@ public class RabbitMQConfig {
     @Value("${happyim.mq.exchange}")
     private String exchangeName;
 
-    @Value("${happyim.mq.queue}")
-    private String queueName;
+    @Value("${happyim.mq.queue-prefix}")
+    private String queuePrefix;
 
-    @Value("${happyim.mq.routing-key}")
-    private String routingKey;
+    @Value("${happyim.mq.routing-key-prefix}")
+    private String routingKeyPrefix;
+
+    @Value("${happyim.mq.instance-id}")
+    private String instanceId;
+
+    private String queueName() { return queuePrefix + instanceId; }
+    public String routingKey() { return routingKeyPrefix + instanceId; }
 
     @Bean
     public TopicExchange chatExchange() {
@@ -30,12 +36,12 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue wsQueue() {
-        return new Queue(queueName, true);
+        return new Queue(queueName(), true);
     }
 
     @Bean
     public Binding wsChatBinding(Queue wsQueue, TopicExchange chatExchange) {
-        return BindingBuilder.bind(wsQueue).to(chatExchange).with(routingKey);
+        return BindingBuilder.bind(wsQueue).to(chatExchange).with(routingKey());
     }
 
     @Bean

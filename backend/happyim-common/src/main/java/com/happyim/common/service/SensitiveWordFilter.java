@@ -69,7 +69,10 @@ public class SensitiveWordFilter implements MessageFilter {
         StringBuilder sb = new StringBuilder(content);
         for (int i = hits.size() - 1; i >= 0; i--) {
             AhoCorasickDoubleArrayTrie.Hit<String> hit = hits.get(i);
-            sb.replace(hit.begin, hit.end, "***");
+
+            String replacement = "*".repeat(hit.end - hit.begin);
+
+            sb.replace(hit.begin, hit.end, replacement);
         }
         return sb.toString();
     }
