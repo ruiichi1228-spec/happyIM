@@ -1,4 +1,14 @@
 <template>
+  <el-dialog v-model="showTerms" title="用户协议与隐私政策" width="520px" top="10vh">
+    <div class="terms-content">
+      <p>欢迎使用 HappyIM。</p>
+      <p>注册或使用本服务即表示您同意以下条款：</p>
+      <p><b>1. 账号安全</b>：您有责任保护账号和密码的安全。</p>
+      <p><b>2. 隐私保护</b>：我们不会向第三方泄露您的个人信息。</p>
+      <p><b>3. 使用规范</b>：禁止发布违法内容，禁止骚扰他人。</p>
+      <p><b>4. 免责声明</b>：本服务按"现状"提供。</p>
+    </div>
+  </el-dialog>
   <div class="auth-wrapper">
 <div class="rain-container">
       <div v-for="d in raindrops" :key="d.id" class="raindrop" :style="d.style" />
@@ -96,18 +106,6 @@
           <p class="success-msg" v-if="success">{{ success }}</p>
         </transition>
       </div>
-
-      <!-- 用户协议弹窗 -->
-    <el-dialog v-model="showTerms" title="用户协议与隐私政策" width="520px" align-center>
-      <div class="terms-content">
-        <p>欢迎使用 HappyIM。</p>
-        <p>注册或使用本服务即表示您同意以下条款：</p>
-        <p><b>1. 账号安全</b>：您有责任保护账号和密码的安全。</p>
-        <p><b>2. 隐私保护</b>：我们不会向第三方泄露您的个人信息，除非法律法规要求。</p>
-        <p><b>3. 使用规范</b>：禁止发布违法、违规内容，禁止骚扰他人。</p>
-        <p><b>4. 免责声明</b>：本服务按"现状"提供，开发者不承担因使用本服务产生的任何损失。</p>
-      </div>
-    </el-dialog>
 
     <div class="footer-links">
         <span @click="$router.push('/login')">已有账号？返回登录</span>
