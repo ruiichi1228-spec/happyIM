@@ -1,12 +1,15 @@
 <template>
-  <el-dialog v-model="showTerms" title="用户协议与隐私政策" width="520px" top="10vh">
+  <el-dialog v-model="showTerms" title="用户协议与隐私政策" width="440px" top="8vh">
     <div class="terms-content">
-      <p>欢迎使用 HappyIM。</p>
-      <p>注册或使用本服务即表示您同意以下条款：</p>
-      <p><b>1. 账号安全</b>：您有责任保护账号和密码的安全。</p>
-      <p><b>2. 隐私保护</b>：我们不会向第三方泄露您的个人信息。</p>
-      <p><b>3. 使用规范</b>：禁止发布违法内容，禁止骚扰他人。</p>
-      <p><b>4. 免责声明</b>：本服务按"现状"提供。</p>
+      <h3>用户协议</h3>
+      <p>欢迎使用 HappyIM（以下简称"本服务"）。</p>
+      <p><b>1. 账号安全</b><br/>您有责任保护账号和密码的安全，不得将账号转借他人使用。如发现账号异常，请立即联系管理员。</p>
+      <p><b>2. 隐私保护</b><br/>我们重视您的隐私。未经您的明确同意，我们不会向第三方泄露您的个人信息，法律法规另有规定的除外。</p>
+      <p><b>3. 使用规范</b><br/>您承诺不会利用本服务发布、传播含有下列内容的信息：<br/>- 违反法律法规的；<br/>- 危害国家安全、泄露国家秘密的；<br/>- 侮辱、诽谤他人的；<br/>- 含有虚假、诈骗、骚扰信息的。</p>
+      <p><b>4. 知识产权</b><br/>本服务的所有权利归开发者所有。用户发布的内容，视为授权本服务在合理范围内使用。</p>
+      <p><b>5. 免责声明</b><br/>本服务按"现状"提供。开发者不对服务的可用性、准确性做任何明示或默示的保证。因不可抗力导致的服务中断，开发者不承担责任。</p>
+      <p><b>6. 协议修改</b><br/>我们有权随时修改本协议。修改后的协议一经发布即生效。继续使用本服务即视为接受修改后的协议。</p>
+      <p style="text-align:right;color:#999;margin-top:16px">HappyIM 团队</p>
     </div>
   </el-dialog>
   <div class="auth-wrapper">
@@ -451,8 +454,9 @@ const startCountdown = () => {
 .agreement-check input { accent-color:#07c160; }
 .agreement-check a { color:#576b95; cursor:pointer; }
 .agreement-check a:hover { text-decoration:underline; }
-.terms-content { font-size:13px; line-height:1.8; color:#555; }
+.terms-content { font-size:13px; line-height:1.8; color:#555; max-height:60vh; overflow-y:auto; padding-right:8px; }
 .terms-content p { margin-bottom:8px; }
+.terms-content h3 { font-size:16px; color:#333; margin-bottom:12px; text-align:center; }
 
 .footer-links {
   margin-top: 22px;
