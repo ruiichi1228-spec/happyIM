@@ -12,10 +12,7 @@ export function useWebSocket() {
     if (!token) return
 
     const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
-    // 一致性哈希：根据 userId 固定连接到同一 WS 实例
-    const uid = JSON.parse(localStorage.getItem('user_info') || '{}').userId || 0
-    const wsPort = 8081 + (uid % 2)
-    socket = new WebSocket(`${protocol}//${location.hostname}:${wsPort}/ws?token=${token}`)
+    socket = new WebSocket(`${protocol}//${location.hostname}:8080/ws?token=${token}`)
 
     socket.onopen = () => {
       connected.value = true
