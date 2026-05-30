@@ -103,6 +103,19 @@ public class AdminController {
     }
 
     @AdminRequired
+    @PostMapping("/sensitive-words/batch")
+    public ApiResponse<?> batchAddWords(@RequestBody Map<String, String> body) {
+        String[] words = body.get("words").split("\n");
+        int count = 0;
+        for (String w : words) {
+            w = w.trim();
+            if (w.isEmpty()) continue;
+            try { adminService.addSensitiveWord(w); count++; } catch (Exception ignored) {}
+        }
+        return ApiResponse.message("成功导入 " + count + " 个敏感词");
+    }
+
+    @AdminRequired
     @DeleteMapping("/sensitive-words/{id}")
     public ApiResponse<?> deleteSensitiveWord(@PathVariable Long id) {
         adminService.deleteSensitiveWord(id);

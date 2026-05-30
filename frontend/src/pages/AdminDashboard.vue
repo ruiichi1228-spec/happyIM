@@ -88,7 +88,11 @@
       <!-- 敏感词 -->
       <template v-if="activeTab === 'words'">
         <h2 class="page-title">敏感词管理</h2>
-        <div class="table-toolbar">
+        <div class="batch-row">
+          <el-input v-model="batchWords" type="textarea" :rows="4" placeholder="批量导入，每行一个词" />
+          <el-button type="success" @click="batchAddWords" style="margin-top:8px">批量导入</el-button>
+        </div>
+        <div class="table-toolbar" style="margin-top:12px">
           <el-input v-model="newWord" placeholder="输入新敏感词" style="width:280px" @keyup.enter="addWord" />
           <el-button type="primary" @click="addWord" style="margin-left:8px">添加</el-button>
         </div>
@@ -218,9 +222,10 @@ const showGroupMembers = async row => { try { const res=await adminAxios.get(`/a
 const dissolveGroup = async row => { try { await ElMessageBox.confirm(`确定解散"${row.name}"?`,'确认',{type:'warning'}); const res=await adminAxios.put(`/api/admin/groups/${row.id}/dissolve`); if (res.data.code===0){ row.status=1; ElMessage.success('已解散') } } catch(e){} }
 
 // ---- 敏感词 ----
-const sensitiveWords=ref([]), wordLoading=ref(false), newWord=ref('')
+const sensitiveWords=ref([]), wordLoading=ref(false), newWord=ref(''), batchWords=ref('')
 const loadWords = async () => { wordLoading.value=true; try { const res=await adminAxios.get('/api/admin/sensitive-words'); if (res.data.code===0) sensitiveWords.value=res.data.data } catch(e){} finally { wordLoading.value=false } }
 const addWord = async () => { if (!newWord.value.trim()) return; try { const res=await adminAxios.post('/api/admin/sensitive-words',{word:newWord.value.trim()}); if (res.data.code===0){ newWord.value=''; loadWords(); ElMessage.success('已添加') } else ElMessage.error(res.data.message) } catch(e){} }
+const batchAddWords = async () => { if (!batchWords.value.trim()) return; try { const res=await adminAxios.post('/api/admin/sensitive-words/batch',{words:batchWords.value}); if (res.data.code===0){ batchWords.value=''; loadWords(); ElMessage.success(res.data.message) } else ElMessage.error(res.data.message) } catch(e){} }
 const deleteWord = async row => { try { await ElMessageBox.confirm(`删除"${row.word}"?`,'确认',{type:'warning'}); await adminAxios.delete(`/api/admin/sensitive-words/${row.id}`); loadWords(); ElMessage.success('已删除') } catch(e){} }
 
 // ---- 文件管理 ----

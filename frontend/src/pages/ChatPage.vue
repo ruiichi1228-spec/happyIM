@@ -84,8 +84,6 @@
                     <div class="profile-label">基本信息</div>
                     <div class="profile-row"><span>ID号：</span><span>{{ userInfoData.id }}</span></div>
                     <div class="profile-row"><span>邮箱：</span><span>{{ userInfoData.email }}</span></div>
-                    <div class="profile-row"><span>注册时间：</span><span>{{ userInfoData.createdTime }}</span></div>
-                    <div class="profile-row"><span>最近登陆：</span><span>{{ userInfoData.lastLoginTime }}</span></div>
                   </div>
                   <div class="profile-section" v-if="userInfoData.description">
                     <div class="profile-label">其它说明</div>
@@ -311,9 +309,7 @@
           <div class="profile-label">基本信息</div>
           <div class="profile-row"><span>ID号：</span><span>{{ cardDetailData.id || cardDetailData.userId }}</span></div>
           <div class="profile-row" v-if="cardDetailData.email"><span>邮箱：</span><span>{{ cardDetailData.email }}</span></div>
-          <div class="profile-row" v-if="cardDetailData.createdTime"><span>注册时间：</span><span>{{ cardDetailData.createdTime }}</span></div>
-          <div class="profile-row" v-if="cardDetailData.lastLoginTime"><span>最近登陆：</span><span>{{ cardDetailData.lastLoginTime }}</span></div>
-        </div>
+                  </div>
         <div class="profile-section" v-if="cardDetailData.description">
           <div class="profile-label">其它说明</div>
           <div class="profile-desc">{{ cardDetailData.description }}</div>
