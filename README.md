@@ -29,6 +29,36 @@ HappyIM is a full-stack instant messaging application built with production-grad
 
 ---
 
+## Versions · 版本
+
+HappyIM is available in two architectural editions. Choose the one that matches your learning goals.
+
+HappyIM 提供两种架构版本，根据学习目标选择。
+
+| | Monolithic · 单体架构 | Microservices · 微服务架构 |
+|---|---|---|
+| **Branch · 分支** | [`master`](https://github.com/ruiichi1228-spec/happyIM) | [`microservices`](https://github.com/ruiichi1228-spec/happyIM/tree/microservices) |
+| **Backend Structure · 后端结构** | `happyim-api` (REST) + `happyim-ws` (WebSocket) + `happyim-common` (共享模块) | `gateway` + `user-service` + `chat-service` + `chat-ws` + `content-service` + `api-contracts` + `happyim-common` |
+| **API Gateway · API 网关** | ✗ — 前端直连各服务 | ✓ — Spring Cloud Gateway 统一入口 |
+| **Inter-Service Communication · 服务间调用** | ✗ — 单进程直接调用 | ✓ — OpenFeign 声明式 RPC |
+| **Service Discovery · 服务发现** | ✗ | Nacos |
+| **Complexity · 复杂度** | 低 — 适合快速上手 | 中 — 适合学习分布式架构 |
+| **Frontend · 前端** | 相同 | 相同 |
+
+> The `microservices` branch is the actively developed mainline. The `master` branch preserves the monolithic version for those who prefer a simpler starting point.
+>
+> `microservices` 分支是当前活跃开发的主线。`master` 分支保留了单体版本，适合希望从简单架构起步的开发者。
+
+### Which one should I choose? · 如何选择？
+
+| Scenario · 场景 | Recommendation · 推荐 |
+|---|---|
+| You're new to IM systems or Spring Boot · 刚接触 IM 或 Spring Boot | Start with [`master`](https://github.com/ruiichi1228-spec/happyIM) — get a working system running first · 从 master 开始，先把系统跑通 |
+| You've built monoliths and want to learn microservices · 已有单体经验，想学微服务 | Use [`microservices`](https://github.com/ruiichi1228-spec/happyIM/tree/microservices) — observe real service decomposition, gateway routing, and inter-service calls · 用 microservices 分支，理解服务拆分、网关路由、服务间调用 |
+| You're preparing for system design interviews · 准备系统设计面试 | Study both — compare the two architectures to understand the trade-offs in practice · 两个都看，对比两种架构的权衡取舍 |
+
+---
+
 ## Features · 功能
 
 ### Core Messaging · 核心消息
