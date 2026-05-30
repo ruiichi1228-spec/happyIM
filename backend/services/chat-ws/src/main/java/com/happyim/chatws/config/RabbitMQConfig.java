@@ -80,9 +80,10 @@ public class RabbitMQConfig {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(messageConverter);
-        factory.setConcurrentConsumers(2);
-        factory.setMaxConcurrentConsumers(5);
+        factory.setConcurrentConsumers(1);
+        factory.setMaxConcurrentConsumers(1);
         factory.setDefaultRequeueRejected(true);
+        factory.setPrefetchCount(1);
         factory.setPrefetchCount(1);
         return factory;
     }
