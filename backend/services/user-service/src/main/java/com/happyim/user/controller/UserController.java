@@ -60,7 +60,7 @@ public class UserController {
     @LoginRequired
     public ApiResponse<List<Map<String, Object>>> batchUsers(@RequestBody List<Long> userIds, HttpServletRequest request) {
         Long selfId = jwtUtil.getUserId(extractToken(request));
-        List<User> users = userMapper.findByIds(userIds);
+        List<User> users = new ArrayList<>(userCache.batchGet(userIds).values());
 
         // 好友备注
         List<Friend> friends = friendMapper.findByUserIdAndFriendIds(selfId, userIds);
