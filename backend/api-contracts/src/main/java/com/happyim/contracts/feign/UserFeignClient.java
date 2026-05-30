@@ -13,7 +13,7 @@ import java.util.Map;
  * user-service 对外暴露的 Feign 接口
  * 所有方法返回 ApiResponse 的 JSON 结构 {code, data}，由调用方 unwrap
  */
-@FeignClient(name = "user-service", url = "http://localhost:8101", path = "/api")
+@FeignClient(name = "user-service", path = "/api")
 public interface UserFeignClient {
 
     @GetMapping("/users/{id}/profile")
